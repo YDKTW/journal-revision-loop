@@ -1,0 +1,266 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ManuscriptReview",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "reviewer",
+    "round",
+    "paper_type",
+    "scores",
+    "weighted_total",
+    "verdict",
+    "strengths",
+    "issues",
+    "unverifiable"
+  ],
+  "properties": {
+    "reviewer": {
+      "type": "string",
+      "enum": [
+        "gemini",
+        "gpt"
+      ]
+    },
+    "round": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "paper_type": {
+      "type": "string",
+      "enum": [
+        "quantitative",
+        "qualitative",
+        "theoretical",
+        "teaching_practice",
+        "mixed",
+        "content_analysis",
+        "historical",
+        "institutional_comparison",
+        "cross_cultural",
+        "literature_linguistics"
+      ]
+    },
+    "scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "properties": {
+        "A": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "B": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "C": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "D": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "E": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "F": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "G": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5
+        }
+      }
+    },
+    "weighted_total": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "accept",
+        "minor",
+        "major",
+        "reject"
+      ]
+    },
+    "strengths": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "string"
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "dimension",
+          "severity",
+          "location",
+          "problem",
+          "suggestion",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^(G|P)-R[0-9]+-[0-9]{2,3}$"
+          },
+          "dimension": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D",
+              "E",
+              "F",
+              "G"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "major",
+              "minor"
+            ]
+          },
+          "location": {
+            "type": "string"
+          },
+          "problem": {
+            "type": "string"
+          },
+          "suggestion": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "new",
+              "resolved",
+              "unresolved"
+            ]
+          }
+        }
+      }
+    },
+    "unverifiable": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reference_audit": {
+      "type": "array",
+      "description": "僅審查B（文獻反查）填寫；審查A 可省略或輸出空陣列。",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ref_id",
+          "citation_as_written",
+          "list_entry",
+          "status",
+          "note"
+        ],
+        "properties": {
+          "ref_id": {
+            "type": "string"
+          },
+          "citation_as_written": {
+            "type": "string"
+          },
+          "list_entry": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "matched",
+              "year_mismatch",
+              "missing_in_list",
+              "uncited",
+              "incomplete",
+              "placeholder_suspected",
+              "needs_external_check"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "literature_use": {
+      "type": "array",
+      "description": "文獻清單使用紀錄。只列出你判斷與稿件主題直接相關或相關的清單項目；清單為空或無任何相關項目時輸出空陣列。",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "list_no",
+          "title",
+          "relevance",
+          "engagement",
+          "note"
+        ],
+        "properties": {
+          "list_no": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string"
+          },
+          "relevance": {
+            "type": "string",
+            "enum": [
+              "direct",
+              "related"
+            ]
+          },
+          "engagement": {
+            "type": "string",
+            "enum": [
+              "engaged",
+              "partly",
+              "not_engaged",
+              "unknown"
+            ],
+            "description": "稿件是否已處理該研究所代表的觀點：engaged 已討論／引用、partly 部分、not_engaged 未處理、unknown 無法判斷"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

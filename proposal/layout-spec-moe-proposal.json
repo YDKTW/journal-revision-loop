@@ -1,0 +1,61 @@
+{
+  "_說明": "教育部 115 年度教學實踐研究計畫「計畫內容」官方體例：Word 編輯；中文標楷體、英文 Times New Roman、12 pt；字元間距標準；單行間距；邊界上下左右各 2 cm；頁碼 1、2、3 置於每頁下方中央；一年期至多 25 頁、多年期至多 40 頁（含參考文獻與附件，不含封面）；上傳 PDF（30MB 以內）。",
+  "page": {
+    "size": "A4",
+    "margin_top_cm": 2.0,
+    "margin_bottom_cm": 2.0,
+    "margin_left_cm": 2.0,
+    "margin_right_cm": 2.0
+  },
+  "font_zh": "標楷體",
+  "font_en": "Times New Roman",
+  "body": {
+    "size_pt": 12,
+    "line_spacing": 1.0,
+    "first_line_indent_chars": 2,
+    "align": "justify"
+  },
+  "title": {
+    "size_pt": 16,
+    "bold": true,
+    "align": "center"
+  },
+  "heading1": {
+    "size_pt": 14,
+    "bold": true,
+    "align": "left"
+  },
+  "heading2": {
+    "size_pt": 12,
+    "bold": true,
+    "align": "left"
+  },
+  "heading3": {
+    "size_pt": 12,
+    "bold": true,
+    "align": "left"
+  },
+  "table_caption": {
+    "position": "above",
+    "size_pt": 12,
+    "bold": true,
+    "align": "center"
+  },
+  "table": {
+    "size_pt": 12,
+    "style": "grid"
+  },
+  "references": {
+    "size_pt": 12,
+    "line_spacing": 1.0,
+    "hanging_indent_chars": 2
+  },
+  "page_number": {
+    "enabled": true,
+    "position": "center"
+  },
+  "unspecified": [
+    "標題與各級標題字級、表格字級（官方未規定，採 12–16 pt）"
+  ],
+  "source": "教育部 115 年度教學實踐研究計畫徵件說明（附件 1）"
+}
