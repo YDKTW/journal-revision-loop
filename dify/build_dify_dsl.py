@@ -22,7 +22,7 @@ def read(p):
 rubric = read(ROOT / "review-rubric.md")
 skill = read(ROOT / "journal-manuscript-reviser" / "SKILL.md")
 skill_body = re.sub(r"^---.*?---\s*", "", skill, count=1, flags=re.S)
-skill_body += "\n\n**本次為自動化模式**，請依「自動化模式的輸出包裝」輸出四個標籤。\n"
+skill_body += "\n\n**本次為自動化模式**，請依「自動化模式的輸出包裝」輸出 `<edits>`（只列要改的句子，不要輸出全文）、`<response_table>`、`<summary_json>`、`<plain_summary>` 四個標籤。\n"
 code1 = read(Path(__file__).resolve().parent / "code-node-1-decide.py")
 code2 = read(Path(__file__).resolve().parent / "code-node-2-parse-revision.py")
 code0 = read(Path(__file__).resolve().parent / "code-node-0-preprocess.py")
@@ -311,7 +311,7 @@ nodes.append(base_node(IFE, {
 
 # ⑥ Claude 修稿
 nodes.append(llm_node(REV, "⑥ Claude 修稿", "langgenius/anthropic/anthropic", "claude-sonnet-5",
-                      "{{#%s.reviser_system#}}" % CTX, USER_REVISE, 1420, 200, max_tokens=48000))
+                      "{{#%s.reviser_system#}}" % CTX, USER_REVISE, 1420, 200, max_tokens=16000))
 
 # ⑦ 程式碼：解析修訂
 nodes.append(code_node(C2, "⑦ 解析修訂並檢查鎖定區塊", code2, [
@@ -477,9 +477,25 @@ nodes.append(code_node(PCHK2, "程式檢查（最終稿，供終審）", code7, 
 
 # ---------- 文獻背景檢索（Google Scholar via SerpApi；失敗不中斷） ----------
 SYS_LITQ = ("你是學術文獻檢索助理。依使用者提供的稿件開頭，產生 3 組 Google Scholar 檢索字串，用來找「與本研究最相關的既有研究」。\n"
-            "規則：每組 2–6 個關鍵詞，以空格分隔，不要用句子；第 1 組為研究主題與對象（繁體中文）；第 2 組為教學或研究方法與情境（繁體中文）；"
-            "第 3 組為英文對應關鍵詞（英文學術用語）。不得捏造不存在的專有名詞。\n"
-            "依論文類型調整：cross_cultural（跨文化研究）→ 第 1 組含所比較的文化／群體與研究主題，第 2 組含跨文化理論或測量等值、適應、溝通等概念，第 3 組用 cross-cultural／intercultural／measurement invariance 等英文術語；"
+            "基本規則：每組 2–6 個關鍵詞，以空格分隔，不要用句子，不要使用任何引號；不得捏造不存在的專有名詞。"
+            "第 1 組：研究的核心概念組合（繁體中文），必須同時包含稿件最具辨識度的兩個核心概念；"
+            "第 2 組：研究對象、教學場域或方法（繁體中文），例如對象加方法加成效；"
+            "第 3 組：第 1 組核心概念的英文學術用語（英文），2–5 個詞。\n"
+            "避免過度泛化：不要單獨使用「教學」「人工智慧」「評量」「成效」「學習」這類大範圍詞；"
+            "AI 或某工具若只是輔助手段、不是研究主題，不要放進第 1、3 組，最多放進第 2 組一個詞。"
+            "先判斷稿件真正的研究主題是什麼，再取詞；不要被稿件開頭的行政資料、課程名稱或工具名稱帶偏。\n"
+            "主題用語對照（遇到下列主題時，用左欄的繁中詞與右欄的英文學術詞）：\n"
+            "· 認知作戰／認知域作戰 → cognitive warfare, cognitive domain operations；資訊戰 → information warfare；影響力作戰 → influence operations；灰色地帶 → gray zone\n"
+            "· 假訊息／不實訊息／資訊操弄 → disinformation, misinformation, information manipulation；事實查核 → fact-checking；心理接種 → inoculation, prebunking\n"
+            "· 孫子兵法／兵學／戰略思想 → Sun Tzu, Art of War, strategic thought；詭道、用間 → deception, intelligence；古典戰略思想的當代轉譯 → classical strategic thought, contemporary application\n"
+            "· 媒體識讀／資訊素養 → media literacy, information literacy；批判思考 → critical thinking；數位公民 → digital citizenship\n"
+            "· 軍校／軍事教育 → military academy, cadets, professional military education；兵棋推演 → wargaming, war game in education；案例教學 → case-based learning\n"
+            "· 兩岸關係／大陸問題／中共研究 → cross-strait relations, Taiwan Strait, China studies, CCP political system；中國大陸研究教學 → teaching China studies\n"
+            "· 教學實踐研究／教學研究 → scholarship of teaching and learning (SoTL)；行動研究 → action research；學習遷移 → transfer of learning；鷹架 → scaffolding；認知彈性 → cognitive flexibility\n"
+            "· 憲政民主／半總統制 → constitutional democracy, semi-presidentialism；地方自治 → local self-government；社區總體營造／社區發展 → community building, community development, Taiwan\n"
+            "依論文類型調整：teaching_practice_proposal（教學實踐研究計畫書）→ 檢索重點是「研究主題的核心概念」與「教學場域加方法的既有研究」，"
+            "第 1 組取研究動機與主題的核心概念，第 2 組取軍校或課程對象加教學方法加成效評估，第 3 組用英文核心概念；"
+            "cross_cultural（跨文化研究）→ 第 1 組含所比較的文化／群體與研究主題，第 2 組含跨文化理論或測量等值、適應、溝通等概念，第 3 組用 cross-cultural／intercultural／measurement invariance 等英文術語；"
             "literature_linguistics（文學與語言研究）→ 第 1 組含作家／作品／語言現象與研究主題，第 2 組含所用理論或分析取徑（如敘事學、話語分析、語用學、語料庫、翻譯研究），第 3 組用對應英文術語；其他類型照一般規則。\n"
             "只輸出 JSON，格式：{\"queries\":[\"...\",\"...\",\"...\"]}，不要任何其他文字。")
 nodes.append(llm_node(LITQ, "文獻檢索：產生查詢字串", "langgenius/gemini/google", "gemini-3-flash-preview", SYS_LITQ,

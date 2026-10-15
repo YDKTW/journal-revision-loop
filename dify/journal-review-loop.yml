@@ -10,7 +10,7 @@ version: 0.3.1
 workflow:
   conversation_variables: []
   environment_variables:
-  - id: 03002b61-6271-4f4b-be29-7037149bae3a
+  - id: 9adfbfc6-1648-40e0-a6b2-be4056727efb
     name: RUBRIC
     selector:
     - env
@@ -275,7 +275,7 @@ workflow:
       `id` 編碼規則：`{G|P}-R{輪次}-{序號}`，G 代表 Gemini，P 代表 GPT，供修稿者在對照表中逐條回應。
     value_type: string
     description: 審查標準全文（review-rubric.md）
-  - id: 96fc163d-7caf-4d8c-b3d4-e7e743967e5e
+  - id: f0799e36-d724-4607-9ee0-ad8e38571eff
     name: RUBRIC_PROPOSAL
     selector:
     - env
@@ -530,7 +530,7 @@ workflow:
 
     value_type: string
     description: 教學實踐研究計畫書預審標準
-  - id: 667426d1-e3fa-400c-a9d0-283e1de0c107
+  - id: f8e351d1-bc56-4d96-9331-8f0856972fdb
     name: SYS_A_JOURNAL
     selector:
     - env
@@ -602,7 +602,7 @@ workflow:
       - `reviewer` 固定填 `gemini`；意見 id 前綴固定為 `G`，格式 `G-R{輪次}-{兩位數序號}`。
     value_type: string
     description: 審查A系統提示（期刊；含 {{rubric}}、{{paper_type}} 占位符）
-  - id: 3865d2b3-8dcc-4028-abee-fb98a1e05bd8
+  - id: 4e821d07-62df-4c89-89e8-8576d70c6c43
     name: SYS_B_JOURNAL
     selector:
     - env
@@ -705,7 +705,7 @@ workflow:
       - `reviewer` 固定填 `gpt`；意見 id 前綴固定為 `P`，格式 `P-R{輪次}-{兩位數序號}`。
     value_type: string
     description: 審查B系統提示（期刊）
-  - id: 8d759dbe-45b3-462a-8343-27cef99cb940
+  - id: 2338a78b-491c-4cec-8df5-d44cbf062149
     name: SYS_A_PROPOSAL
     selector:
     - env
@@ -797,7 +797,7 @@ workflow:
       - `reviewer` 固定填 `gemini`；意見 id 前綴固定為 `G`，格式 `G-R{輪次}-{兩位數序號}`。
     value_type: string
     description: 審查A系統提示（計畫書）
-  - id: 67c4d5b4-ab5b-4ba1-b110-891ca9d8a8cb
+  - id: d27817ed-4423-4a62-9463-f4f1f9f977be
     name: SYS_B_PROPOSAL
     selector:
     - env
@@ -884,7 +884,7 @@ workflow:
       - 另外輸出 `reference_audit`：沿用期刊審查的格式（`ref_id`、`citation_as_written`、`list_entry`、`status`、`note`），僅列出有問題的條目；`status` 為 `year_mismatch`、`missing_in_list`、`uncited`、`incomplete`、`placeholder_suspected`、`needs_external_check` 之一。
     value_type: string
     description: 審查B系統提示（計畫書）
-  - id: 28c5dadd-5b7c-4308-9375-5a67d792a943
+  - id: cef45934-e2e5-4494-ae7b-0968fd809723
     name: REVISER_SKILL_PROPOSAL
     selector:
     - env
@@ -994,7 +994,7 @@ workflow:
 
       依序輸出三個部分。
 
-      ### 1. 修訂稿
+      ### 1. 修訂稿（互動模式；自動化模式改用修改清單，見下節）
 
       完整的修訂後稿件（vN+1），保留原有標題層級與 `<!--LOCK-->` 標記。需要追蹤變動時，修改處以 `<!--R{輪次}-{意見ID}-->` 標註，方便比對。
 
@@ -1028,21 +1028,44 @@ workflow:
       }
       ```
 
-      ### 自動化模式的輸出包裝
+      ### 自動化模式的輸出包裝（差異編輯：只輸出要改的句子）
 
-      當系統提示或使用者說明「自動化模式」（由 Dify 或腳本串接）時，四個部分必須各自包在下列標籤內，標籤外不得有其他文字，讓程式能可靠拆解：
+      當系統提示或使用者說明「自動化模式」（由 Dify 或腳本串接）時，**不要輸出整份修訂稿**，只輸出「修改清單」，由程式套用到當前稿件。四個部分必須各自包在下列標籤內，標籤外不得有其他文字：
 
       ```
-      <revised_manuscript>…完整修訂稿…</revised_manuscript>
+      <edits>
+      <edit ids="G-R1-03,P-R1-02" action="replace">
+      <find>當前稿件中要被取代的原句（逐字複製）</find>
+      <replace>替換後的文字</replace>
+      </edit>
+      <edit ids="P-R1-07" action="insert_after">
+      <find>錨點：當前稿件中既有的一句話（逐字複製）</find>
+      <replace>要插在錨點之後的文字</replace>
+      </edit>
+      <edit ids="G-R1-05" action="delete">
+      <find>要刪除的原句（逐字複製）</find>
+      </edit>
+      </edits>
       <response_table>…修訂對照表…</response_table>
       <summary_json>…上述 JSON，不加程式碼框…</summary_json>
       <plain_summary>…白話摘要…</plain_summary>
       ```
 
+      **修改清單的寫法（程式會逐字比對，違反時該筆修改會被略過）：**
+      1. `action` 只有四種：`replace`（取代）、`insert_after`（插在錨點後）、`insert_before`（插在錨點前）、`delete`（刪除）。
+      2. `<find>` 必須**逐字複製**當前稿件中的文字，含標點與數字，不得改寫、不得省略；長度以一整句或一個短段落為宜（約 15 至 80 字），**要長到在全稿中只出現一次**。若同一句在稿中出現多次，把前後文多帶幾個字。
+      3. `<find>` 不得跨越 `<!--LOCK-->…<!--/LOCK-->` 區塊，也不得包含這兩個標記；要在受保護區塊旁加註時，錨點取區塊之外的相鄰句子。
+      4. 一處修改一筆，各筆的 `<find>` 不得互相重疊；同一句要改好幾個地方時，合併成一筆。
+      5. `ids` 填這筆修改回應的意見 id（多個用半形逗號分隔）。每一筆修改至少要有一個 id；純粹為了銜接而順帶修改的，填最相關的 id。
+      6. `<replace>` 寫完整的替換後文字（不是差異描述），保留稿件原有的語氣、標點與格式；需要給作者的提示，照舊以 `【待作者補充：…】`、`【待作者確認：…】` 寫在 `<replace>` 裡。
+      7. **修改幅度最小化**：能只換一個詞，就不要換整句；能換一句，就不要換整段。不得為了「保險」而把整段重寫成 `<replace>`。
+      8. 本輪完全不需要修改時，輸出空的 `<edits></edits>`。
+
       自動化模式的額外要求：
       - `dispositions` 必須涵蓋本輪收到的**每一條**意見 id，審查者下一輪會依此判斷你的「不採納」理由是否成立。
-      - 修訂稿必須是**完整全文**，不得以「其餘不變」省略，否則稿件會被截短。
-      - `<!--LOCK-->` 標記內的文字必須逐字保留；程式會逐字比對，不一致時整輪修訂作廢並交由人工處理。
+      - 標為「採納」或「部分採納」的意見，必須在修改清單中有至少一筆引用該 id 的修改；沒有對應修改卻標採納，會被視為未處理。
+      - 不需要、也不應該重新輸出沒有改動的段落；程式會保留所有未被修改的內容，包含 `<!--LOCK-->` 區塊。
+      - 不要自己加入 `<!--R…-->` 標記，程式會自動加上。
 
       最後附一段給使用者的**白話摘要**（200 字內）：本輪改了什麼、哪些沒改且為什麼、有哪些需要使用者親自決定。
 
@@ -1067,7 +1090,7 @@ workflow:
       - **審查者連續兩輪重提已解決的問題**：標記「審查者翻盤」，不重複處理，交由人工判斷。
 
 
-      **本次為自動化模式**，請依「自動化模式的輸出包裝」輸出四個標籤。
+      **本次為自動化模式**，請依「自動化模式的輸出包裝」輸出 `<edits>`（只列要改的句子，不要輸出全文）、`<response_table>`、`<summary_json>`、`<plain_summary>` 四個標籤。
 
 
       ---
@@ -1122,7 +1145,7 @@ workflow:
       全部使用繁體中文（臺灣慣用語），不得夾雜簡體字。
     value_type: string
     description: 修稿者 Skill（計畫書版：期刊通則＋計畫書補充規則）
-  - id: d2f0f3aa-6fcb-4f69-b092-2ef6eec2253b
+  - id: ea376ac2-82ba-47d3-a3cd-ed389e70c288
     name: SYS_FINAL_JOURNAL
     selector:
     - env
@@ -1201,7 +1224,7 @@ workflow:
          - 第六節第一點須建議：將 `max_rounds` 調為 2 以上，讓系統進入修稿與複審。
     value_type: string
     description: 終審系統提示（期刊）
-  - id: 8d95edc8-6e4e-4ba4-9156-ef9c4589a94f
+  - id: c52d6b93-1231-4304-ac18-5c2185196c59
     name: SYS_FINAL_PROPOSAL
     selector:
     - env
@@ -1281,7 +1304,7 @@ workflow:
       ---
     value_type: string
     description: 終審系統提示（計畫書）
-  - id: bb104361-df82-4624-88b3-c5f60d168f8c
+  - id: c2231ae0-654d-458d-8609-035b2c32e6b2
     name: DEFAULT_FORMAT_PROPOSAL
     selector:
     - env
@@ -1297,7 +1320,7 @@ workflow:
       - 研究倫理：涉及心理資訊（焦慮、情緒、壓力等）、特殊身分研究對象，或實驗組／對照組設計者，應規劃研究倫理審查；其餘須有研究參與者招募與知情同意規劃；學生資料須去識別化。
     value_type: string
     description: 計畫書官方格式摘要（未上傳其他格式檔時使用）
-  - id: a1cef166-8b03-4b2f-bc2d-2b33f925a82f
+  - id: 477f85fb-ae47-4268-b594-e53439a2c1be
     name: LAYOUT_PROPOSAL
     selector:
     - env
@@ -1366,7 +1389,7 @@ workflow:
       }
     value_type: string
     description: 計畫書官方版面規格（Word 匯出用）
-  - id: d16d5763-7518-4b41-919f-4fe6ca8f9bb7
+  - id: 3732b398-2f52-495d-a1e1-4ec7f7e9421a
     name: REVISER_SKILL
     selector:
     - env
@@ -1476,7 +1499,7 @@ workflow:
 
       依序輸出三個部分。
 
-      ### 1. 修訂稿
+      ### 1. 修訂稿（互動模式；自動化模式改用修改清單，見下節）
 
       完整的修訂後稿件（vN+1），保留原有標題層級與 `<!--LOCK-->` 標記。需要追蹤變動時，修改處以 `<!--R{輪次}-{意見ID}-->` 標註，方便比對。
 
@@ -1510,21 +1533,44 @@ workflow:
       }
       ```
 
-      ### 自動化模式的輸出包裝
+      ### 自動化模式的輸出包裝（差異編輯：只輸出要改的句子）
 
-      當系統提示或使用者說明「自動化模式」（由 Dify 或腳本串接）時，四個部分必須各自包在下列標籤內，標籤外不得有其他文字，讓程式能可靠拆解：
+      當系統提示或使用者說明「自動化模式」（由 Dify 或腳本串接）時，**不要輸出整份修訂稿**，只輸出「修改清單」，由程式套用到當前稿件。四個部分必須各自包在下列標籤內，標籤外不得有其他文字：
 
       ```
-      <revised_manuscript>…完整修訂稿…</revised_manuscript>
+      <edits>
+      <edit ids="G-R1-03,P-R1-02" action="replace">
+      <find>當前稿件中要被取代的原句（逐字複製）</find>
+      <replace>替換後的文字</replace>
+      </edit>
+      <edit ids="P-R1-07" action="insert_after">
+      <find>錨點：當前稿件中既有的一句話（逐字複製）</find>
+      <replace>要插在錨點之後的文字</replace>
+      </edit>
+      <edit ids="G-R1-05" action="delete">
+      <find>要刪除的原句（逐字複製）</find>
+      </edit>
+      </edits>
       <response_table>…修訂對照表…</response_table>
       <summary_json>…上述 JSON，不加程式碼框…</summary_json>
       <plain_summary>…白話摘要…</plain_summary>
       ```
 
+      **修改清單的寫法（程式會逐字比對，違反時該筆修改會被略過）：**
+      1. `action` 只有四種：`replace`（取代）、`insert_after`（插在錨點後）、`insert_before`（插在錨點前）、`delete`（刪除）。
+      2. `<find>` 必須**逐字複製**當前稿件中的文字，含標點與數字，不得改寫、不得省略；長度以一整句或一個短段落為宜（約 15 至 80 字），**要長到在全稿中只出現一次**。若同一句在稿中出現多次，把前後文多帶幾個字。
+      3. `<find>` 不得跨越 `<!--LOCK-->…<!--/LOCK-->` 區塊，也不得包含這兩個標記；要在受保護區塊旁加註時，錨點取區塊之外的相鄰句子。
+      4. 一處修改一筆，各筆的 `<find>` 不得互相重疊；同一句要改好幾個地方時，合併成一筆。
+      5. `ids` 填這筆修改回應的意見 id（多個用半形逗號分隔）。每一筆修改至少要有一個 id；純粹為了銜接而順帶修改的，填最相關的 id。
+      6. `<replace>` 寫完整的替換後文字（不是差異描述），保留稿件原有的語氣、標點與格式；需要給作者的提示，照舊以 `【待作者補充：…】`、`【待作者確認：…】` 寫在 `<replace>` 裡。
+      7. **修改幅度最小化**：能只換一個詞，就不要換整句；能換一句，就不要換整段。不得為了「保險」而把整段重寫成 `<replace>`。
+      8. 本輪完全不需要修改時，輸出空的 `<edits></edits>`。
+
       自動化模式的額外要求：
       - `dispositions` 必須涵蓋本輪收到的**每一條**意見 id，審查者下一輪會依此判斷你的「不採納」理由是否成立。
-      - 修訂稿必須是**完整全文**，不得以「其餘不變」省略，否則稿件會被截短。
-      - `<!--LOCK-->` 標記內的文字必須逐字保留；程式會逐字比對，不一致時整輪修訂作廢並交由人工處理。
+      - 標為「採納」或「部分採納」的意見，必須在修改清單中有至少一筆引用該 id 的修改；沒有對應修改卻標採納，會被視為未處理。
+      - 不需要、也不應該重新輸出沒有改動的段落；程式會保留所有未被修改的內容，包含 `<!--LOCK-->` 區塊。
+      - 不要自己加入 `<!--R…-->` 標記，程式會自動加上。
 
       最後附一段給使用者的**白話摘要**（200 字內）：本輪改了什麼、哪些沒改且為什麼、有哪些需要使用者親自決定。
 
@@ -1549,10 +1595,10 @@ workflow:
       - **審查者連續兩輪重提已解決的問題**：標記「審查者翻盤」，不重複處理，交由人工判斷。
 
 
-      **本次為自動化模式**，請依「自動化模式的輸出包裝」輸出四個標籤。
+      **本次為自動化模式**，請依「自動化模式的輸出包裝」輸出 `<edits>`（只列要改的句子，不要輸出全文）、`<response_table>`、`<summary_json>`、`<plain_summary>` 四個標籤。
     value_type: string
     description: 修稿者 Skill 本文
-  - id: eea0b943-25a7-456b-8f75-2c1fd978485a
+  - id: 3c6f1b2a-f0f2-450b-a3a2-baca69713cd2
     name: SERPAPI_KEY
     selector:
     - env
@@ -1560,7 +1606,7 @@ workflow:
     value: ''
     value_type: secret
     description: SerpApi 金鑰（Google Scholar 文獻檢索）。留空則略過文獻檢索，其他流程照常
-  - id: fb8e374a-c827-4dcf-9b28-e702456a5d95
+  - id: fa5a294c-3de3-48f1-8b6b-90cd4ad38df3
     name: DEFAULT_FORMAT_RULES
     selector:
     - env
@@ -2311,7 +2357,7 @@ workflow:
         width: 2000
         height: 640
         break_conditions:
-        - id: 42cafb91-6deb-4d26-9c36-54b54f5d9297
+        - id: 3332af74-a960-4435-9a06-e4c868c773a4
           varType: string
           variable_selector:
           - '1730000000002'
@@ -2319,98 +2365,98 @@ workflow:
           comparison_operator: is not
           value: continue
         loop_variables:
-        - id: afd53c7c-7b59-4244-801a-1118b516cdaf
+        - id: 3e4fd4e1-4ceb-48d8-ae93-b765c2d253fb
           label: current_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: 984a8237-6179-4ac8-b3ca-6ace2b366c68
+        - id: 76db3e9e-fd50-4a22-81bc-4204e4c1f2ff
           label: prev_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: c227dbe3-d418-4a66-9026-e88532746335
+        - id: aed18b63-d353-4275-8e48-9514ecf8a80d
           label: orig_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: a9be271e-1c57-47b0-bf88-ac63b0db2be7
+        - id: d3626b62-a6ff-420f-b29a-6fe62e882cab
           label: round_no
           var_type: number
           value_type: constant
           value: 1
-        - id: b851a05b-ed0f-4980-84a3-5b9669577575
+        - id: b83335f8-4495-438f-a3c2-8c826582059c
           label: decision
           var_type: string
           value_type: constant
           value: continue
-        - id: f6cb8240-582c-4edc-96d4-5f7b7dd72dfb
+        - id: d88febec-5a20-47ae-8e8c-0baa488c36c4
           label: prev_total
           var_type: number
           value_type: constant
           value: 0
-        - id: b348a580-c596-4120-b5b6-c7bc4e21c1fd
+        - id: 8f3509b8-024a-4b47-aac2-4d9c09d6d33c
           label: prev_major
           var_type: number
           value_type: constant
           value: 0
-        - id: 2607e05c-bd35-45bf-affc-33b05f7a021f
+        - id: 52a0cb94-df0d-4918-a564-776ca4bb24e9
           label: pass_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: fbeaeb95-4730-423a-8c75-533b314cc582
+        - id: 1002dea3-c8a7-4caa-b06b-40e0637a60f2
           label: stall_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: 04115e89-9ede-4c9e-afbd-2ce999093d96
+        - id: 233a33c2-1869-4335-8e86-1b319a7d8d51
           label: fail_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: 758c5030-8af4-4a18-a42a-9551bf4494aa
+        - id: b5fc1a6a-7246-4215-a37c-486aa86d1717
           label: history
           var_type: string
           value_type: constant
           value: ''
-        - id: c4749c77-b30d-42ad-b3bb-41e8e0c5b103
+        - id: 4e9221e3-bd79-498c-bf6d-f7c652c1ed25
           label: prior_gemini
           var_type: string
           value_type: constant
           value: '[]'
-        - id: 5bd9309b-022f-4dd0-82e1-4e11881b1843
+        - id: b087af81-fed6-42df-ad93-fac792c80bb9
           label: prior_gpt
           var_type: string
           value_type: constant
           value: '[]'
-        - id: 79a52f78-56df-469c-885e-1af484488249
+        - id: cacdccc4-2bba-40f7-ad67-6a79b02102b3
           label: response_summary
           var_type: string
           value_type: constant
           value: ''
-        - id: 333e0790-08dc-4933-8004-db9cc735ad1d
+        - id: bdfafdd8-edc6-478a-b29a-70638179771c
           label: last_response_table
           var_type: string
           value_type: constant
           value: ''
-        - id: c9ffc965-95c5-4a41-8605-b2a1a157e036
+        - id: 700d69f6-8b45-40ae-b7a0-dfb278363079
           label: last_marked
           var_type: string
           value_type: constant
           value: ''
-        - id: 31ec582b-f2ca-4fe4-9ec3-e6583bc34284
+        - id: a6682e41-9635-44b2-9440-860191e8cfc8
           label: last_flags
           var_type: string
           value_type: constant
           value: ''
-        - id: 3ad54f81-73df-4e8f-a534-edaf8d46972a
+        - id: 54aef2f5-88a4-42f6-8628-df229a32b264
           label: last_reason
           var_type: string
           value_type: constant
@@ -2456,10 +2502,10 @@ workflow:
             temperature: 0.3
             max_tokens: 32000
         prompt_template:
-        - id: e6f43cd8-2f55-40bb-8d12-032f9a4328c5
+        - id: d4937811-39e8-404b-831c-5ba48da4571d
           role: system
           text: '{{#1730000000312.sys_a#}}'
-        - id: 8aa32071-6ec1-43ff-9917-806c4357dcd1
+        - id: 23c49d11-e86a-4f48-a62a-9dc9effa6454
           role: user
           text: |-
             請審查以下稿件。
@@ -2530,10 +2576,10 @@ workflow:
             temperature: 0.3
             max_tokens: 32000
         prompt_template:
-        - id: 306fde79-9c5d-4b9a-80c3-956861309858
+        - id: b2297b6c-9901-4e7f-b018-a3e72a20e74a
           role: system
           text: '{{#1730000000312.sys_b#}}'
-        - id: bedcf88f-d987-4187-a7f6-13a49a0bdc46
+        - id: 2acf987c-d9e6-4825-92c5-4c1d25a938c3
           role: user
           text: |-
             請審查以下稿件。
@@ -3371,7 +3417,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 3b89cef9-edb7-474d-9ee4-914f85ed21c4
+          - id: 0cc34482-1119-4600-b86e-777da7734ddb
             varType: string
             variable_selector:
             - '1730000000002'
@@ -3410,12 +3456,12 @@ workflow:
           mode: chat
           completion_params:
             temperature: 0.3
-            max_tokens: 48000
+            max_tokens: 16000
         prompt_template:
-        - id: 1d87f87a-c9e9-47fe-bff0-80a6c89fa325
+        - id: 59627fce-21fa-4f1b-8e30-8e080f3453fd
           role: system
           text: '{{#1730000000312.reviser_system#}}'
-        - id: 6dd2e07d-4212-42fa-8434-79258c72e7e9
+        - id: 01f28377-8c0b-4c56-b57b-ffd067b105eb
           role: user
           text: |-
             【輪次】{{#1730000000002.round_no#}}
@@ -3473,6 +3519,10 @@ workflow:
           #   reviser_raw (String)    Claude 修稿者 LLM 節點的輸出文字
           #   old_manuscript (String) 本輪送審的稿件（current_manuscript）
           #   fail_streak (Number)    連續「修稿輸出無法採用」的次數（循環變數）
+          # 修稿輸出有兩種格式（向下相容）：
+          #   A. <revised_manuscript>…完整修訂稿…</revised_manuscript>（舊格式，整份稿件由模型重寫）
+          #   B. <edits>…修改清單…</edits>（新格式，模型只輸出要改的句子，由本程式套用到舊稿；速度快、成本低、不會被截斷）
+          #   兩者同時出現時以 A 為準。B 的格式見 journal-manuscript-reviser/SKILL.md「自動化模式的輸出包裝」。
           # 處理原則：硬失敗（缺稿、鎖定區塊被改、截斷）→ 作廢本輪；軟警示（需人工補事實等）→ 採用修訂稿並停止循環
           # 輸出變數：
           #   ok(String: "true"/"false") override_decision(String) manuscript_clean(String)
@@ -3531,6 +3581,109 @@ workflow:
               return m.group(1).strip() if m else ""
 
 
+          EDIT_RE = re.compile(r"<edit\b([^>]*)>(.*?)</edit>", re.S)
+          ATTR_RE = re.compile(r'(\w+)\s*=\s*"([^"]*)"')
+          MIN_FIND = 5  # 引用的原句至少 5 個字（去除空白後），避免太短而不唯一
+
+
+          def _has_block(raw, tag):
+              return re.search(r"<%s>.*?</%s>" % (tag, tag), raw or "", re.S) is not None
+
+
+          def _squash_map(text):
+              """去除所有空白後的字串，以及每個字元在原文中的位置。"""
+              chars, idx = [], []
+              for i, ch in enumerate(text):
+                  if not ch.isspace():
+                      chars.append(ch)
+                      idx.append(i)
+              return "".join(chars), idx
+
+
+          def _locate(old, find):
+              """在舊稿中找 find；回傳 (start, end, 錯誤訊息)。先精確比對，找不到再忽略空白與換行比對。必須唯一。"""
+              n = old.count(find)
+              if n == 1:
+                  i = old.index(find)
+                  return i, i + len(find), ""
+              if n > 1:
+                  return None, None, "原句在稿中出現 %d 次，無法判斷改哪一處" % n
+              sq_old, idx = _squash_map(old)
+              sq_find, _ = _squash_map(find)
+              if len(sq_find) < MIN_FIND:
+                  return None, None, "引用的原句太短"
+              c = sq_old.count(sq_find)
+              if c == 0:
+                  return None, None, "在稿中找不到這段原句"
+              if c > 1:
+                  return None, None, "原句（忽略空白後）在稿中出現 %d 次，無法判斷改哪一處" % c
+              j = sq_old.index(sq_find)
+              return idx[j], idx[j + len(sq_find) - 1] + 1, ""
+
+
+          def _round_of(ids):
+              m = re.search(r"R(\d+)", ids or "")
+              return m.group(1) if m else "0"
+
+
+          def _apply_edits(old, edits_raw):
+              """把修改清單套用到舊稿。回傳 (套用後含標記的稿件, 成功筆數, 失敗清單[(ids, 原因)], 成功的意見 id 集合)。
+              所有位置都先在「舊稿」上定位，再由後往前一次替換，因此修改之間互不影響；重疊、碰到鎖定區塊、找不到、不唯一的修改一律跳過。"""
+              lock_spans = [(m.start(), m.end()) for m in LOCK_RE.finditer(old)]
+              plan, fails, done_ids = [], [], set()
+              for m in EDIT_RE.finditer(edits_raw):
+                  attrs = dict(ATTR_RE.findall(m.group(1)))
+                  body = m.group(2)
+                  ids = (attrs.get("ids") or attrs.get("id") or "").strip()
+                  action = (attrs.get("action") or "replace").strip().lower()
+                  f = _grab(body, "find")
+                  r = _grab(body, "replace")
+                  if action not in ("replace", "insert_after", "insert_before", "delete"):
+                      fails.append((ids, "不認得的動作：%s" % action))
+                      continue
+                  if not f:
+                      fails.append((ids, "缺少 find（要修改的原句）"))
+                      continue
+                  if action != "delete" and not r:
+                      fails.append((ids, "缺少 replace（修改後的文字）"))
+                      continue
+                  a, b, err = _locate(old, f)
+                  if err:
+                      fails.append((ids, err))
+                      continue
+                  if any(a < le and b > ls for ls, le in lock_spans):
+                      fails.append((ids, "碰到受保護（LOCK）區塊"))
+                      continue
+                  plan.append((a, b, action, r, ids))
+              plan.sort(key=lambda x: (x[0], x[1]))
+              kept, last_end = [], -1
+              for it in plan:
+                  if it[0] < last_end:
+                      fails.append((it[4], "與前一筆修改的位置重疊"))
+                      continue
+                  kept.append(it)
+                  last_end = it[1]
+              out, pos = [], 0
+              for a, b, action, r, ids in kept:
+                  out.append(old[pos:a])
+                  tag = "<!--R%s-%s-->" % (_round_of(ids), ids) if ids else ""
+                  orig = old[a:b]
+                  if action == "replace":
+                      out.append(r + tag)
+                  elif action == "insert_after":
+                      out.append(orig + r + tag)
+                  elif action == "insert_before":
+                      out.append(r + tag + orig)
+                  else:  # delete
+                      out.append(tag)
+                  pos = b
+                  for i in re.split(r"[,，、\s]+", ids):
+                      if i:
+                          done_ids.add(i)
+              out.append(old[pos:])
+              return "".join(out), len(kept), fails, done_ids
+
+
           def main(reviser_raw: str, old_manuscript: str, fail_streak: float = 0) -> dict:
               raw_len = len(reviser_raw or "")
               reviser_raw = re.sub(r"<think>.*?</think>", "", reviser_raw or "", flags=re.S)
@@ -3538,6 +3691,24 @@ workflow:
               hard = []  # 硬失敗：本輪修訂作廢，沿用舊稿
               soft = []  # 軟警示：採用修訂稿，但停止循環交給人工
               marked = _grab(reviser_raw, "revised_manuscript")
+              edit_fails, edit_done, n_applied, n_edits_raw = [], set(), 0, 0
+              edits_mode = False
+              if not marked and _has_block(reviser_raw, "edits"):
+                  edits_mode = True
+                  edits_raw = _grab(reviser_raw, "edits")
+                  n_edits_raw = len(EDIT_RE.findall(edits_raw))
+                  marked, n_applied, edit_fails, edit_done = _apply_edits(old_manuscript, edits_raw)
+                  if n_edits_raw and not n_applied:
+                      hard.append("修改清單共 %d 筆，全部無法套用（%s）" % (n_edits_raw, "；".join(sorted({e for _, e in edit_fails})[:3])))
+                      marked = ""
+                  elif edit_fails:
+                      info.append("修改清單共 %d 筆，套用 %d 筆；以下 %d 筆無法套用，已略過：%s" % (
+                          n_edits_raw, n_applied, len(edit_fails),
+                          "；".join("%s（%s）" % (i or "無意見ID", e) for i, e in edit_fails[:6]) + ("…" if len(edit_fails) > 6 else "")))
+                  elif n_edits_raw:
+                      info.append("修改清單共 %d 筆，全部套用。" % n_applied)
+                  else:
+                      info.append("修改清單為空：修稿者本輪沒有修改稿件。")
               table = _grab(reviser_raw, "response_table")
               plain = _grab(reviser_raw, "plain_summary")
               summary_raw = _grab(reviser_raw, "summary_json")
@@ -3557,6 +3728,10 @@ workflow:
                   stripped = reviser_raw.strip()
                   if not stripped:
                       hard.append("修稿者沒有輸出任何內容（原始輸出長度 %d 字元；若遠大於 0，代表內容全在思考區塊內，常見原因是思考用光了輸出額度）" % raw_len)
+                  elif "<edits>" in stripped and not edits_mode:
+                      hard.append("修改清單被截斷（有開頭標籤、沒有結尾標籤；輸出長度 %d 字元；常見原因：思考用光了輸出額度）" % len(stripped))
+                  elif edits_mode:
+                      pass  # 已在上方記錄硬失敗原因
                   elif "<revised_manuscript>" in stripped:
                       hard.append("修訂稿輸出被截斷（有開頭標籤、沒有結尾標籤；輸出長度 %d 字元；常見原因：思考用光了輸出額度）" % len(stripped))
                   else:
@@ -3578,8 +3753,21 @@ workflow:
               # 軟警示：修稿者自述的狀況
               if summary.get("locked_regions_touched"):
                   soft.append("修稿者回報動到鎖定區塊，請人工核對")
+              failed_reason = {}
+              if edits_mode and not hard:
+                  for _ids, _err in edit_fails:
+                      for _i in re.split(r"[,，、\s]+", _ids or ""):
+                          if _i:
+                              failed_reason.setdefault(_i, _err)
               progress = len([d for d in (summary.get("dispositions") or [])
-                              if isinstance(d, dict) and d.get("action") in ("adopted", "partial")])
+                              if isinstance(d, dict) and d.get("action") in ("adopted", "partial")
+                              and not (edits_mode and d.get("id") in failed_reason and d.get("id") not in edit_done)])
+              if edits_mode and not hard:
+                  claimed = [d.get("id", "") for d in (summary.get("dispositions") or [])
+                             if isinstance(d, dict) and d.get("action") in ("adopted", "partial")]
+                  no_edit = [i for i in claimed if i and i not in edit_done and i not in failed_reason]
+                  if no_edit:
+                      info.append("以下意見自述已採納或部分採納，但修改清單中沒有引用該意見編號的修改（可能併入其他意見的修改，請核對）：%s" % "、".join(no_edit[:8]))
               if summary.get("recommendation") == "stop_human":
                   if progress == 0:
                       soft.append("修稿者建議交由人工處理（本輪沒有任何可處理的修訂，剩餘問題多需作者補充事實）")
@@ -3601,6 +3789,10 @@ workflow:
               lines = []
               for d in summary.get("dispositions", []) or []:
                   action = d.get("action", "")
+                  did = d.get("id", "")
+                  if edits_mode and not hard and action in ("adopted", "partial") and did in failed_reason and did not in edit_done:
+                      action = "human"
+                      d = dict(d, action="human", reason="修稿者提出的修改無法套用到稿件（%s），本條視為尚未處理" % failed_reason[did])
                   if action == "adopted":
                       lines.append("%s｜採納" % d.get("id", ""))
                   else:
@@ -3911,7 +4103,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: d747cff6-24ee-4a61-a134-af11db24867b
+          - id: 6f1a38e8-ffa6-4f9c-9995-a68ceade35e6
             varType: string
             variable_selector:
             - '1730000000001'
@@ -4234,6 +4426,25 @@ workflow:
               return "\n".join(res), count
 
 
+          def _lit_head(text, limit=3500):
+              """供文獻檢索用的稿件開頭。計畫書的前幾頁多半是封面與主持人資料，用它產生查詢會偏離研究主題，
+              因此偵測到計畫書封面特徵時，改從「研究動機／摘要／主題及目的」等研究內容起算。"""
+              clean = re.sub(r"<!--/?LOCK-->\n?", "", text)
+              first = clean[:3500]
+              if re.search(r"計畫主持人|主持人部分|申請機構|計畫編號|基本資料|計畫類別", first):
+                  start = None
+                  m = re.search(r"計畫執行內容", clean)
+                  if m:
+                      start = m.start()
+                  if start is None:
+                      m = re.search(r"(?m)^[^\n]{0,10}(?:研究動機|計畫摘要|計畫成果摘要|主題及目的|研究目的)[^\n]{0,20}$", clean[800:])
+                      if m:
+                          start = 800 + m.start()
+                  if start is not None:
+                      return clean[start:start + limit]
+              return clean[:limit]
+
+
           def main(pasted_text: str = "", extracted_text: str = "", raw_text: str = "") -> dict:
               sources = [("貼上文字", pasted_text), ("上傳檔案擷取", extracted_text), ("合併節點", raw_text)]
               lens = [(name, len((v or "").strip()) if isinstance(v, str) else 0) for name, v in sources]
@@ -4287,6 +4498,9 @@ workflow:
               # 產生知識庫檢索用的簡短查詢
               plain = [ln.strip() for ln in text.split("\n") if ln.strip() and "<!--" not in ln]
               title = plain[0] if plain else ""
+              m_t = re.search(r"計畫名稱\s*[:：]?\s*([^\n]{4,80})", text)
+              if m_t:
+                  title = (m_t.group(1) + " " + title).strip()
               kw = ""
               for ln in plain:
                   if re.match(r"^(關鍵詞|關鍵字|Keywords?)", ln):
@@ -4300,7 +4514,7 @@ workflow:
               kb_query = " ".join(x for x in (title, kw, abs_txt) if x)[:250]
 
               report = "前處理完成：%d 字元，鎖定區塊共 %d 個。" % (len(text), locks) + "".join("\n- " + x for x in notes)
-              head = re.sub(r"<!--/?LOCK-->\n?", "", text)[:3500]
+              head = _lit_head(text)
               return {"manuscript_ready": text, "report": report, "kb_query": kb_query, "head_text": head}
         code_language: python3
         variables:
@@ -4352,7 +4566,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 8296cac1-12dc-4a00-af89-f0246aa80ef8
+          - id: 9c529dc4-9244-4f70-86b2-4c2934429662
             varType: string
             variable_selector:
             - '1730000000001'
@@ -4410,7 +4624,7 @@ workflow:
             temperature: 0.1
             max_tokens: 16000
         prompt_template:
-        - id: 3ec4771d-cfb6-47e7-afc6-f64e82594ce6
+        - id: de8909e8-5b94-4d37-8489-25efd7aa72cd
           role: system
           text: |-
             你是期刊稿約整理員。使用者會提供某期刊的稿約、投稿須知或格式範本的擷取文字。請把它整理成一份結構固定、簡潔的「期刊規範摘要」。
@@ -4456,7 +4670,7 @@ workflow:
             }
             </layout_spec>
             ```
-        - id: 091f0761-4220-4a48-9b3e-20e8099f59dd
+        - id: de4d44fb-984c-426c-8d6d-1d744b3c7dc0
           role: user
           text: |-
             【稿約或格式文件的擷取文字】
@@ -4629,7 +4843,7 @@ workflow:
             temperature: 0.1
             max_tokens: 32000
         prompt_template:
-        - id: 935073a3-8945-4939-a848-d7f71a97eec0
+        - id: 8a00a3fd-9c92-48f0-977c-dffda3a82594
           role: system
           text: |-
             你是學術稿件的格式編輯。你的工作只有一項：在**完全不改變內容**的前提下，整理稿件的版面與標點格式。
@@ -4681,7 +4895,7 @@ workflow:
             5. 不要重複提出同一項修改。
 
             程式會逐項檢查：不合格的項目只會被略過，不影響其他項目；因此請寧可保守，不要冒險。
-        - id: 84960cf3-259b-4abf-b197-06508d368f02
+        - id: 3bd30e8f-6f62-42e7-a8c1-49cbdef3b251
           role: user
           text: |-
             【規範來源】{{#1730000000312.journal_source#}}
@@ -5651,10 +5865,10 @@ workflow:
             temperature: 0.2
             max_tokens: 16000
         prompt_template:
-        - id: 64614be2-84e3-472c-be28-2ae857b24af7
+        - id: 30c76d26-d12c-4f46-b402-d87ae62932ca
           role: system
           text: '{{#1730000000312.final_system#}}'
-        - id: 37af6494-546f-4a03-9f04-0bab0d7112af
+        - id: e62a8aad-db98-4a55-b697-8a7949db2deb
           role: user
           text: |-
             {{#1730000000308.verdict_hint#}}
@@ -5713,7 +5927,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 573a4a81-fd07-435f-b486-8e2e32860463
+          - id: c1e08aeb-e162-4305-86cd-d1cff88d9efa
             varType: file
             variable_selector:
             - '1730000000001'
@@ -5804,7 +6018,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 45d17284-dd55-44d3-903a-1cb010424c8a
+          - id: 0334be67-8136-4e86-a63f-c7194a46b171
             varType: file
             variable_selector:
             - '1730000000001'
@@ -7341,14 +7555,24 @@ workflow:
             temperature: 0.1
             max_tokens: 2000
         prompt_template:
-        - id: 62d2ef8a-3bb8-4e3e-b019-0f6c19f8ed57
+        - id: 7d60fb09-d329-4955-a77f-30b8d0619981
           role: system
           text: |-
             你是學術文獻檢索助理。依使用者提供的稿件開頭，產生 3 組 Google Scholar 檢索字串，用來找「與本研究最相關的既有研究」。
-            規則：每組 2–6 個關鍵詞，以空格分隔，不要用句子；第 1 組為研究主題與對象（繁體中文）；第 2 組為教學或研究方法與情境（繁體中文）；第 3 組為英文對應關鍵詞（英文學術用語）。不得捏造不存在的專有名詞。
-            依論文類型調整：cross_cultural（跨文化研究）→ 第 1 組含所比較的文化／群體與研究主題，第 2 組含跨文化理論或測量等值、適應、溝通等概念，第 3 組用 cross-cultural／intercultural／measurement invariance 等英文術語；literature_linguistics（文學與語言研究）→ 第 1 組含作家／作品／語言現象與研究主題，第 2 組含所用理論或分析取徑（如敘事學、話語分析、語用學、語料庫、翻譯研究），第 3 組用對應英文術語；其他類型照一般規則。
+            基本規則：每組 2–6 個關鍵詞，以空格分隔，不要用句子，不要使用任何引號；不得捏造不存在的專有名詞。第 1 組：研究的核心概念組合（繁體中文），必須同時包含稿件最具辨識度的兩個核心概念；第 2 組：研究對象、教學場域或方法（繁體中文），例如對象加方法加成效；第 3 組：第 1 組核心概念的英文學術用語（英文），2–5 個詞。
+            避免過度泛化：不要單獨使用「教學」「人工智慧」「評量」「成效」「學習」這類大範圍詞；AI 或某工具若只是輔助手段、不是研究主題，不要放進第 1、3 組，最多放進第 2 組一個詞。先判斷稿件真正的研究主題是什麼，再取詞；不要被稿件開頭的行政資料、課程名稱或工具名稱帶偏。
+            主題用語對照（遇到下列主題時，用左欄的繁中詞與右欄的英文學術詞）：
+            · 認知作戰／認知域作戰 → cognitive warfare, cognitive domain operations；資訊戰 → information warfare；影響力作戰 → influence operations；灰色地帶 → gray zone
+            · 假訊息／不實訊息／資訊操弄 → disinformation, misinformation, information manipulation；事實查核 → fact-checking；心理接種 → inoculation, prebunking
+            · 孫子兵法／兵學／戰略思想 → Sun Tzu, Art of War, strategic thought；詭道、用間 → deception, intelligence；古典戰略思想的當代轉譯 → classical strategic thought, contemporary application
+            · 媒體識讀／資訊素養 → media literacy, information literacy；批判思考 → critical thinking；數位公民 → digital citizenship
+            · 軍校／軍事教育 → military academy, cadets, professional military education；兵棋推演 → wargaming, war game in education；案例教學 → case-based learning
+            · 兩岸關係／大陸問題／中共研究 → cross-strait relations, Taiwan Strait, China studies, CCP political system；中國大陸研究教學 → teaching China studies
+            · 教學實踐研究／教學研究 → scholarship of teaching and learning (SoTL)；行動研究 → action research；學習遷移 → transfer of learning；鷹架 → scaffolding；認知彈性 → cognitive flexibility
+            · 憲政民主／半總統制 → constitutional democracy, semi-presidentialism；地方自治 → local self-government；社區總體營造／社區發展 → community building, community development, Taiwan
+            依論文類型調整：teaching_practice_proposal（教學實踐研究計畫書）→ 檢索重點是「研究主題的核心概念」與「教學場域加方法的既有研究」，第 1 組取研究動機與主題的核心概念，第 2 組取軍校或課程對象加教學方法加成效評估，第 3 組用英文核心概念；cross_cultural（跨文化研究）→ 第 1 組含所比較的文化／群體與研究主題，第 2 組含跨文化理論或測量等值、適應、溝通等概念，第 3 組用 cross-cultural／intercultural／measurement invariance 等英文術語；literature_linguistics（文學與語言研究）→ 第 1 組含作家／作品／語言現象與研究主題，第 2 組含所用理論或分析取徑（如敘事學、話語分析、語用學、語料庫、翻譯研究），第 3 組用對應英文術語；其他類型照一般規則。
             只輸出 JSON，格式：{"queries":["...","...","..."]}，不要任何其他文字。
-        - id: 34f467ea-d620-4ae4-9286-8cce2efc2f5c
+        - id: 9c29476b-96e1-4d3a-8d7d-ec60b18f2a71
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -7734,7 +7958,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 97ecf126-addc-43fc-a4ec-9292e9ee8459
+          - id: dab2dcb1-b710-4e99-84fe-22406c54c2f6
             varType: string
             variable_selector:
             - '1730000000001'
@@ -7770,7 +7994,7 @@ workflow:
             temperature: 0.2
             max_tokens: 8000
         prompt_template:
-        - id: 72912688-3787-47b5-8ad9-3679053e3906
+        - id: 2a4899bc-f454-4211-b27f-9fce824adb8b
           role: system
           text: |-
             你是教學實踐研究計畫的「對齊診斷員」。你的任務只有一件事：檢查計畫書內部，學理論述與各計畫項次是否環環相扣，並用表格與清單呈現缺口。你不審查優劣、不打分數、不給嚴重度、不改寫任何段落。
@@ -7823,7 +8047,7 @@ workflow:
             Markdown、繁體中文（臺灣慣用語）、不得夾雜簡體字。總長度不超過 4500 字（清單區力求精簡，把篇幅留給矩陣、孤兒項與建議）。章節標題固定為：
             `## 一、理論與項次清單`（含實證研究群 L）、`## 二、對齊矩陣`、`## 三、孤兒項`、`## 四、核心理論的論述深度`、`## 五、深化建議`、`## 六、文獻檢索線索`。
             不要輸出這些章節以外的前言或結語。
-        - id: 4c31cfd8-d7dd-4f4f-b05b-9ba16ed6b5e3
+        - id: 3f86649f-0c87-4fa3-b13e-90e4ce7a9dce
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}

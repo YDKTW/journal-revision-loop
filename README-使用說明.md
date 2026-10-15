@@ -123,3 +123,8 @@ python tools/export_docx.py result.json -o 修訂稿.docx --also-doc --also-pdf
 - 接法：診斷結果附在審查者與修稿者讀取的 `extra_context` 結尾，不改動迴圈本身；輸出新增 `alignment_report`、`alignment_status`。
 - 分工：Dify 只診斷、不補寫；缺口一律標【待作者補充】，由作者或 Claude Project 依診斷改寫。
 - 提示檔：`proposal/reviewers/alignment-diagnosis.md`；合併程式：`dify/code-node-12-align-merge.py`；審查標準補充規則 10 說明審查者如何使用診斷報告。
+
+## v1.3：差異式修稿與文獻檢索調整
+
+- **修稿改為差異編輯**：修稿者在自動化模式只輸出 `<edits>` 修改清單（replace／insert_after／insert_before／delete，逐字引用原句），由「⑦ 解析修訂」程式節點套用到當前稿件，再產生完整修訂稿。輸出量縮減為原本的約 1/5 至 1/8，不再有「輸出被截斷」；原句找不到、不唯一、重疊、碰到 LOCK 區塊的修改會被略過並在報告列出，對應意見的處理狀況自動降為「需人工處理」。舊格式（`<revised_manuscript>` 全文）仍可解析，必要時把 `REVISER_SKILL` 換回舊提示即可退回。修稿節點的 Max Tokens 由 48000 調為 16000。
+- **文獻檢索**：查詢產生提示加入孫子兵法、認知作戰、媒體識讀、軍事教育、兩岸關係等主題的中英用語對照與避免泛化詞的規則；計畫書的檢索用開頭改從「計畫執行內容／研究動機」起算，不再取封面與主持人資料。

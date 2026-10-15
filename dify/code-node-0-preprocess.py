@@ -246,6 +246,25 @@ def _lock_ethics(text):
     return "\n".join(res), count
 
 
+def _lit_head(text, limit=3500):
+    """供文獻檢索用的稿件開頭。計畫書的前幾頁多半是封面與主持人資料，用它產生查詢會偏離研究主題，
+    因此偵測到計畫書封面特徵時，改從「研究動機／摘要／主題及目的」等研究內容起算。"""
+    clean = re.sub(r"<!--/?LOCK-->\n?", "", text)
+    first = clean[:3500]
+    if re.search(r"計畫主持人|主持人部分|申請機構|計畫編號|基本資料|計畫類別", first):
+        start = None
+        m = re.search(r"計畫執行內容", clean)
+        if m:
+            start = m.start()
+        if start is None:
+            m = re.search(r"(?m)^[^\n]{0,10}(?:研究動機|計畫摘要|計畫成果摘要|主題及目的|研究目的)[^\n]{0,20}$", clean[800:])
+            if m:
+                start = 800 + m.start()
+        if start is not None:
+            return clean[start:start + limit]
+    return clean[:limit]
+
+
 def main(pasted_text: str = "", extracted_text: str = "", raw_text: str = "") -> dict:
     sources = [("貼上文字", pasted_text), ("上傳檔案擷取", extracted_text), ("合併節點", raw_text)]
     lens = [(name, len((v or "").strip()) if isinstance(v, str) else 0) for name, v in sources]
@@ -299,6 +318,9 @@ def main(pasted_text: str = "", extracted_text: str = "", raw_text: str = "") ->
     # 產生知識庫檢索用的簡短查詢
     plain = [ln.strip() for ln in text.split("\n") if ln.strip() and "<!--" not in ln]
     title = plain[0] if plain else ""
+    m_t = re.search(r"計畫名稱\s*[:：]?\s*([^\n]{4,80})", text)
+    if m_t:
+        title = (m_t.group(1) + " " + title).strip()
     kw = ""
     for ln in plain:
         if re.match(r"^(關鍵詞|關鍵字|Keywords?)", ln):
@@ -312,5 +334,5 @@ def main(pasted_text: str = "", extracted_text: str = "", raw_text: str = "") ->
     kb_query = " ".join(x for x in (title, kw, abs_txt) if x)[:250]
 
     report = "前處理完成：%d 字元，鎖定區塊共 %d 個。" % (len(text), locks) + "".join("\n- " + x for x in notes)
-    head = re.sub(r"<!--/?LOCK-->\n?", "", text)[:3500]
+    head = _lit_head(text)
     return {"manuscript_ready": text, "report": report, "kb_query": kb_query, "head_text": head}
