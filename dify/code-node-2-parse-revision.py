@@ -110,9 +110,13 @@ def _round_of(ids):
     return m.group(1) if m else "0"
 
 
+REDIRECTED = []
+
+
 def _apply_edits(old, edits_raw):
     """把修改清單套用到舊稿。回傳 (套用後含標記的稿件, 成功筆數, 失敗清單[(ids, 原因)], 成功的意見 id 集合)。
     所有位置都先在「舊稿」上定位，再由後往前一次替換，因此修改之間互不影響；重疊、碰到鎖定區塊、找不到、不唯一的修改一律跳過。"""
+    del REDIRECTED[:]
     lock_spans = [(m.start(), m.end()) for m in LOCK_RE.finditer(old)]
     plan, fails, done_ids = [], [], set()
     for m in EDIT_RE.finditer(edits_raw):
@@ -135,8 +139,16 @@ def _apply_edits(old, edits_raw):
         if err:
             fails.append((ids, err))
             continue
-        if any(a < le and b > ls for ls, le in lock_spans):
-            fails.append((ids, "碰到受保護（LOCK）區塊"))
+        hit = [(ls, le) for ls, le in lock_spans if a < le and b > ls]
+        if hit:
+            # 鎖定區塊內容不可動；但修改裡若有【待作者…】標記，改掛到區塊之後（最後一個被碰到的區塊末端）
+            marks = [x.group(0) for x in MARKER_ANY_RE.finditer(r or "") if not x.group(0).startswith("<!--")]
+            if marks:
+                le = max(e for _, e in hit)
+                plan.append((le, le, "insert_after", "".join(marks), ids))
+                REDIRECTED.append(ids)
+            else:
+                fails.append((ids, "碰到受保護（LOCK）區塊"))
             continue
         plan.append((a, b, action, r, ids))
     plan.sort(key=lambda x: (x[0], x[1]))
@@ -191,6 +203,8 @@ def main(reviser_raw: str, old_manuscript: str, fail_streak: float = 0) -> dict:
                 "；".join("%s（%s）" % (i or "無意見ID", e) for i, e in edit_fails[:6]) + ("…" if len(edit_fails) > 6 else "")))
         elif n_edits_raw:
             info.append("修改清單共 %d 筆，全部套用。" % n_applied)
+        if REDIRECTED:
+            info.append("意見 %s 指向鎖定區塊（表格或受保護段落）：區塊內容未更動，待作者標記已改掛在區塊之後" % "、".join(sorted({i or "無ID" for i in REDIRECTED})))
         else:
             info.append("修改清單為空：修稿者本輪沒有修改稿件。")
     table = _grab(reviser_raw, "response_table")
@@ -283,6 +297,9 @@ def main(reviser_raw: str, old_manuscript: str, fail_streak: float = 0) -> dict:
             lines.append("%s｜%s｜%s" % (d.get("id", ""), action, d.get("reason", "")))
 
     if edits_mode and not hard:
+        _redir = sorted({x for r in REDIRECTED for x in re.split(r"[,，、\s]+", r or "") if x})
+        if _redir and table:
+            table = table.rstrip() + "\n\n---\n\n## 【系統核對】鎖定區塊\n以下意見指向鎖定區塊（表格或受保護段落）：區塊內容沒有被更動，只在區塊之後加入【待作者…】標記；上表若寫「已加入表格」「已修改表格」，以本段為準：" + "、".join(_redir) + "\n"
         _unapplied = sorted({i for i, e in failed_reason.items() if i not in edit_done})
         if _unapplied and table:
             table = table.rstrip() + "\n\n---\n\n## 【系統核對】以下意見的修改未能套用到稿件，上表若寫「已加標記／已修改」，以本段為準（視為尚未處理，稿中沒有對應標記）\n" + \
