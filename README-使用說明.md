@@ -115,3 +115,11 @@ python tools/export_docx.py result.json -o 修訂稿.docx --also-doc --also-pdf
 - 兩位審查者現在必須輸出 `literature_use`（列出文獻清單中相關的項目、稿件是否已處理）；清單中直接相關卻未處理的研究，審查者須在面向 B 提 minor 意見；研究缺口可能已被處理者，在面向 A 提 minor 意見。程式會核對編號與標題是否真在清單內，並把結果寫入審查紀錄（「文獻清單使用：採計 N 筆，稿件未處理：…」）。
 - 文獻檢索字串會依論文類型調整（跨文化、文學與語言有專屬提示）。
 - 重新匯入 yml 後，請再填一次 `SERPAPI_KEY`，並確認 Claude 節點的 Adaptive Thinking 為關閉。
+
+## 對齊診斷節點（計畫書預審；v1.1 新增）
+
+- 位置：文獻背景檢索之後、審查迴圈之前，只在 `paper_type = teaching_practice_proposal` 時執行一次（期刊稿件自動略過，不增加成本）。
+- 作用：抽取稿中的「理論清單」與「計畫項次清單」，建立「研究問題 × 理論／活動／工具／分析／成果」對齊矩陣，列出孤兒項（掛名理論、無學理依據的活動、無資料可回答的研究問題）與核心理論的論述深度，並給作者「待補方向」。
+- 接法：診斷結果附在審查者與修稿者讀取的 `extra_context` 結尾，不改動迴圈本身；輸出新增 `alignment_report`、`alignment_status`。
+- 分工：Dify 只診斷、不補寫；缺口一律標【待作者補充】，由作者或 Claude Project 依診斷改寫。
+- 提示檔：`proposal/reviewers/alignment-diagnosis.md`；合併程式：`dify/code-node-12-align-merge.py`；審查標準補充規則 10 說明審查者如何使用診斷報告。

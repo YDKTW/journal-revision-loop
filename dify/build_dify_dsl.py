@@ -33,6 +33,7 @@ code6 = read(Path(__file__).resolve().parent / "code-node-6-changes-digest.py")
 code7 = read(Path(__file__).resolve().parent / "code-node-7-proposal-checks.py")
 code8 = read(Path(__file__).resolve().parent / "code-node-8-mode.py")
 code9 = read(Path(__file__).resolve().parent / "code-node-9-course-merge.py")
+code12 = read(Path(__file__).resolve().parent / "code-node-12-align-merge.py")
 code10 = read(Path(__file__).resolve().parent / "code-node-10-lit-queries.py")
 code11 = read(Path(__file__).resolve().parent / "code-node-11-lit-merge.py")
 PROP = ROOT / "proposal"
@@ -57,6 +58,7 @@ GEM, GPT, C1, ASA, IFE, REV, C2, ASB, END = [
 IFC, EXTC, CTX, PCHK, PCHK2 = ["17300000003%02d" % i for i in range(10, 15)]  # 計畫書模式新增節點
 CTXA, IFP, EXTP = ["17300000003%02d" % i for i in range(15, 18)]  # 授課計畫書合併、前期計畫書
 LITQ, LITP, LH1, LH2, LH3, LITM = ["17300000004%02d" % i for i in range(1, 7)]  # 文獻背景檢索（Google Scholar／SerpApi）
+IFA, ALN, ALM = ["17300000005%02d" % i for i in range(1, 4)]  # 對齊診斷（計畫書預審）
 LV = LOOP  # 循環變數的 selector 前綴
 
 sys_gem = "{{#%s.sys_a#}}" % CTX
@@ -336,6 +338,7 @@ end_outputs = [  # (輸出名稱, 來源節點, 來源變數)
     ("unresolved_a", LOOP, "prior_gemini"), ("unresolved_b", LOOP, "prior_gpt"),
     ("preprocess_report", PRE, "report"), ("journal_source", CTX, "journal_source"), ("layout_spec", CTX, "layout_spec"), ("changes_digest", DIG, "changes_digest"),
     ("literature_report", LITM, "lit_report"), ("literature_context", LITM, "lit_context"),
+    ("alignment_report", ALM, "align_report"), ("alignment_status", ALM, "align_status"),
 ]
 nodes.append({
     "id": END, "type": "custom", "position": pos(6400, 260), "positionAbsolute": pos(6400, 260),
@@ -465,7 +468,7 @@ nodes.append(code_node(CTX, "決定審查模式與取得授課計畫書", code8,
     ("final_system", "string"), ("journal_rules", "string"), ("journal_source", "string"), ("layout_spec", "string")], 3740, 260, inner=False))
 nodes.append(code_node(PCHK, "程式檢查（計畫書預審；期刊稿件為空）", code7, [
     ("proposal_text", [LOOP, "current_manuscript"]), ("course_text", [CTX, "course_text"]), ("paper_type", [START, "paper_type"]),
-    ("local_checks", [START, "local_checks"]), ("prior_text", [CTX, "prior_text"]),
+    ("local_checks", [START, "local_checks"]), ("prior_text", [CTX, "prior_text"]), ("align_report", [ALM, "align_report"]),
 ], [("extra_context", "string")], 40, 120))
 nodes.append(code_node(PCHK2, "程式檢查（最終稿，供終審）", code7, [
     ("proposal_text", [GUARD, "final_manuscript"]), ("course_text", [CTX, "course_text"]), ("paper_type", [START, "paper_type"]),
@@ -510,6 +513,24 @@ nodes.append(code_node(LITM, "文獻檢索：整理結果給審查者", code11,
                         ("queries", [LITP, "all"])],
                        [("lit_context", "string"), ("lit_report", "string")], 4800, 600, inner=False))
 
+
+# ---------- 對齊診斷（計畫書預審；循環開始前執行一次；非計畫書直接略過） ----------
+SYS_ALIGN = read(PROP / "reviewers" / "alignment-diagnosis.md").split("## System prompt", 1)[1].split("## User prompt 模板", 1)[0].strip().rstrip("-").strip()
+ALIGN_USER = ("【論文類型】{{#%(S)s.paper_type#}}\n\n【作者已知待補事項（空白表示無；與此相關的缺口標註「作者已知」）】\n{{#%(S)s.known_gaps#}}\n\n"
+              "【授課計畫書（可空；僅用來對照教學活動與週次，不是診斷對象）】\n{{#%(CTX)s.course_text#}}\n\n"
+              "【文獻背景檢索結果】\n{{#%(LIT)s.lit_context#}}\n\n"
+              "【計畫書全文】\n<proposal>\n{{#%(PRE)s.manuscript_ready#}}\n</proposal>") % {"S": START, "CTX": CTX, "LIT": LITM, "PRE": PRE}
+nodes.append(base_node(IFA, {
+    "type": "if-else", "title": "是計畫書預審嗎？", "desc": "是才執行對齊診斷；期刊稿件直接略過", "selected": False,
+    "cases": [{"id": "true", "case_id": "true", "logical_operator": "and",
+               "conditions": [{"id": uid(), "varType": "string", "variable_selector": [START, "paper_type"],
+                               "comparison_operator": "is", "value": "teaching_practice_proposal"}]}],
+}, 5100, 600, inner=False, h=126))
+nodes.append(llm_node(ALN, "對齊診斷（理論—項次對應）", "langgenius/anthropic/anthropic", "claude-sonnet-5",
+                      SYS_ALIGN, ALIGN_USER, 5400, 720, max_tokens=8000, inner=False, temperature=0.2))
+nodes.append(code_node(ALM, "合併對齊診斷", code12, [("llm_text", [ALN, "text"]), ("paper_type", [START, "paper_type"])],
+                       [("align_report", "string"), ("align_status", "string")], 5700, 600, inner=False))
+
 type_of = {n["id"]: n["data"]["type"] for n in nodes}
 edges = []
 
@@ -550,7 +571,11 @@ edge(LITQ, LITP, inner=False)
 for _h in (LH1, LH2, LH3):
     edge(LITP, _h, inner=False)
     edge(_h, LITM, inner=False)
-edge(LITM, LOOP, inner=False)
+edge(LITM, IFA, inner=False)
+edge(IFA, ALN, handle="true", inner=False)
+edge(IFA, ALM, handle="false", inner=False)
+edge(ALN, ALM, inner=False)
+edge(ALM, LOOP, inner=False)
 edge(LOOP, FMT, inner=False)
 edge(FMT, GUARD, inner=False)
 edge(GUARD, PCHK2, inner=False)
