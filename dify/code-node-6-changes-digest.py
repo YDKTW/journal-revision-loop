@@ -166,7 +166,15 @@ def main(prev_manuscript: str, final_manuscript: str, unresolved_a: str = "[]", 
         except Exception:
             pass
     hint = _verdict(paper_type, unresolved_a, unresolved_b)
-    if digest.startswith("（稿件與原稿沒有差異）"):
+    mark_n = len(TODO_RE.findall(final_manuscript or "")) - len(TODO_RE.findall(prev_manuscript or ""))
+    if digest.startswith("（稿件與原稿沒有差異）") and mark_n > 0:
+        digest = "（正文句子沒有新增或改寫；修稿者只在正文加入了 %d 處【待作者補充／確認】標記，標記不列入句子比對）" % mark_n
+        cue = ("【修訂狀況（程式比對）】修稿者已執行修訂，但只加入 %d 處待作者標記，沒有改動正文句子。"
+               "這不是「未修稿」：終審不得寫「未產出任何修訂」「稿件與原稿完全一致」。"
+               "第二節寫「修稿者在正文加入 %d 處待作者標記，將審查意見轉為作者待辦」；第三節寫「正文句子無差異，無需審計」。"
+               "不得宣稱任何錯字、用語、數字、表格或段落「已修正」；對照表【系統核對】段落列出的意見視為尚未處理。") % (mark_n, mark_n)
+        hint = (hint + "\n\n" + cue) if hint else cue
+    elif digest.startswith("（稿件與原稿沒有差異）"):
         cue = "【修訂狀況（程式比對）】最終稿與原稿沒有任何差異，代表本次流程沒有任何修訂被採用。終審意見不得宣稱任何錯字、用語、數字、表格或段落「已修正」「已改為」「已加註」；所有審查意見都應視為尚未處理，並以「建議作者修改」的語氣撰寫。"
         hint = (hint + "\n\n" + cue) if hint else cue
     return {"changes_digest": digest, "unresolved": "\n".join(un) if un else "（無）", "verdict_hint": hint}
