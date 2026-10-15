@@ -282,6 +282,12 @@ def main(reviser_raw: str, old_manuscript: str, fail_streak: float = 0) -> dict:
         else:
             lines.append("%s｜%s｜%s" % (d.get("id", ""), action, d.get("reason", "")))
 
+    if edits_mode and not hard:
+        _unapplied = sorted({i for i, e in failed_reason.items() if i not in edit_done})
+        if _unapplied and table:
+            table = table.rstrip() + "\n\n---\n\n## 【系統核對】以下意見的修改未能套用到稿件，上表若寫「已加標記／已修改」，以本段為準（視為尚未處理，稿中沒有對應標記）\n" + \
+                "\n".join("- %s：%s" % (i, failed_reason[i]) for i in _unapplied) + "\n"
+
     flags = hard + soft
     streak_next = int(fail_streak or 0) + 1 if hard else 0
     if hard and streak_next < 2:
