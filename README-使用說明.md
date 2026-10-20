@@ -139,3 +139,10 @@ python tools/export_docx.py result.json -o 修訂稿.docx --also-doc --also-pdf
 - 審查員提示新增「意見的具體性」：critical 與 major 意見的 suggestion 必須寫出具體做法與替代方案；理論與方法類意見須說明對結論可信度或貢獻的影響。
 - 最終輸出新增 advisor_report（給作者決定用的完整顧問建議，含第二批文獻檢索摘要）與 advisor_status。
 - 預估增加約 10–15 萬 tokens、2–3 分鐘。
+
+## v1.4.1：模型參數調整
+
+- Gemini 審查：Temperature 改為 1.0（Gemini 3 系列建議維持預設；已開高強度思考，調低可能影響推理品質）。Include thoughts、Grounding、URL context 須維持 False。
+- GPT-5 審查：不再傳送 temperature（該模型不支援）；Max Tokens 32000。
+- Claude 各節點不再傳送 temperature（開啟 Adaptive Thinking 時不可自訂）：修稿 Max Tokens 16000；終審 20000；對齊診斷 16000；學術顧問改用 claude-opus-5、24000。
+- Adaptive Thinking、Effort、Thinking Display 無法由 DSL 設定，匯入後請在節點內手動確認（建議值見對話紀錄：學術顧問 開／high；對齊診斷 開／high；終審 開／medium 或 high；修稿 關／medium）。

@@ -146,7 +146,7 @@ def base_node(nid, data, x, y, inner=False, w=244, h=90):
 
 
 def llm_node(nid, title, provider, model, system, user, x, y, max_tokens=None, inner=True, temperature=0.3):
-    params = {"temperature": temperature}
+    params = {} if temperature is None else {"temperature": temperature}
     if max_tokens:
         params["max_tokens"] = max_tokens
     data = {
@@ -278,9 +278,9 @@ nodes.append({
 
 # ① ② 審查者（模型名稱為占位，匯入後請在節點內重新選擇）
 nodes.append(llm_node(GEM, "① Gemini 審查（方法與論證）", "langgenius/gemini/google", "gemini-3.1-pro-preview",
-                      sys_gem, USER_REVIEW % {"L": LOOP, "S": START, "prior": "prior_gemini", "JR": CTX, "PC": PCHK, "LIT": LITM, "ADVM": ADVM}, 160, 60, max_tokens=32000))
+                      sys_gem, USER_REVIEW % {"L": LOOP, "S": START, "prior": "prior_gemini", "JR": CTX, "PC": PCHK, "LIT": LITM, "ADVM": ADVM}, 160, 60, max_tokens=32000, temperature=1.0))
 nodes.append(llm_node(GPT, "② GPT 審查（文獻與格式）", "langgenius/openai/openai", "gpt-5",
-                      sys_gpt, USER_REVIEW % {"L": LOOP, "S": START, "prior": "prior_gpt", "JR": CTX, "PC": PCHK, "LIT": LITM, "ADVM": ADVM}, 160, 460, max_tokens=32000))
+                      sys_gpt, USER_REVIEW % {"L": LOOP, "S": START, "prior": "prior_gpt", "JR": CTX, "PC": PCHK, "LIT": LITM, "ADVM": ADVM}, 160, 460, max_tokens=32000, temperature=None))
 
 # ③ 程式碼：解析並判斷
 nodes.append(code_node(C1, "③ 解析審查並判斷停止", code1, [
@@ -316,7 +316,7 @@ nodes.append(base_node(IFE, {
 
 # ⑥ Claude 修稿
 nodes.append(llm_node(REV, "⑥ Claude 修稿", "langgenius/anthropic/anthropic", "claude-sonnet-5",
-                      "{{#%s.reviser_system#}}" % CTX, USER_REVISE, 1420, 200, max_tokens=16000))
+                      "{{#%s.reviser_system#}}" % CTX, USER_REVISE, 1420, 200, max_tokens=16000, temperature=None))
 
 # ⑦ 程式碼：解析修訂
 nodes.append(code_node(C2, "⑦ 解析修訂並檢查鎖定區塊", code2, [
@@ -435,7 +435,7 @@ nodes.append(code_node(DIG, "修訂前後句子比對（供終審）", code6,
                         ("unresolved_a", [LOOP, "prior_gemini"]), ("unresolved_b", [LOOP, "prior_gpt"]), ("paper_type", [START, "paper_type"])],
                        [("changes_digest", "string"), ("unresolved", "string"), ("verdict_hint", "string")], 5500, 260, inner=False))
 nodes.append(llm_node(FINAL, "終審意見（Claude）", "langgenius/anthropic/anthropic", "claude-sonnet-5",
-                      "{{#%s.final_system#}}" % CTX, FINAL_USER, 5800, 260, max_tokens=16000, inner=False, temperature=0.2))
+                      "{{#%s.final_system#}}" % CTX, FINAL_USER, 5800, 260, max_tokens=20000, inner=False, temperature=None))
 
 # ---------- 計畫書模式：授課計畫書取得、模式選擇、程式檢查 ----------
 nodes.append(base_node(IFC, {
@@ -550,7 +550,7 @@ nodes.append(base_node(IFA, {
                                "comparison_operator": "is", "value": "teaching_practice_proposal"}]}],
 }, 5100, 600, inner=False, h=126))
 nodes.append(llm_node(ALN, "對齊診斷（理論—項次對應）", "langgenius/anthropic/anthropic", "claude-sonnet-5",
-                      SYS_ALIGN, ALIGN_USER, 5400, 720, max_tokens=8000, inner=False, temperature=0.2))
+                      SYS_ALIGN, ALIGN_USER, 5400, 720, max_tokens=16000, inner=False, temperature=None))
 nodes.append(code_node(ALM, "合併對齊診斷", code12, [("llm_text", [ALN, "text"]), ("paper_type", [START, "paper_type"])],
                        [("align_report", "string"), ("align_status", "string")], 5700, 600, inner=False))
 
@@ -562,9 +562,9 @@ ADVISOR_USER = ("【論文類型】{{#%(S)s.paper_type#}}\n\n【作者已知待�
                 "【文獻背景檢索結果（第一批，Google Scholar；僅作定位參考）】\n{{#%(LIT)s.lit_context#}}\n\n"
                 "【對齊診斷（計畫書預審才有；可空）】\n{{#%(ALM)s.align_report#}}\n\n"
                 "【稿件全文】\n<manuscript>\n{{#%(PRE)s.manuscript_ready#}}\n</manuscript>") % {"S": START, "LIT": LITM, "ALM": ALM, "PRE": PRE}
-_adv = llm_node(ADV, "學術顧問（理論／觀點／主題／方法）", "langgenius/anthropic/anthropic", "claude-sonnet-5",
-                SYS_ADVISOR, ADVISOR_USER, 6000, 900, max_tokens=9000, inner=False, temperature=0.4)
-_adv["data"]["desc"] = "建議選項與取捨；失敗不中斷。預算允許時可改選 Opus 級模型"
+_adv = llm_node(ADV, "學術顧問（理論／觀點／主題／方法）", "langgenius/anthropic/anthropic", "claude-opus-5",
+                SYS_ADVISOR, ADVISOR_USER, 6000, 900, max_tokens=24000, inner=False, temperature=None)
+_adv["data"]["desc"] = "建議選項與取捨；失敗不中斷。預設 Opus 級；若費用或時間受限，可改回 Sonnet 級"
 _adv["data"]["error_strategy"] = "default-value"
 _adv["data"]["default_value"] = [{"key": "text", "type": "string", "value": ""}]
 nodes.append(_adv)
