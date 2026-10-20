@@ -34,6 +34,8 @@ code7 = read(Path(__file__).resolve().parent / "code-node-7-proposal-checks.py")
 code8 = read(Path(__file__).resolve().parent / "code-node-8-mode.py")
 code9 = read(Path(__file__).resolve().parent / "code-node-9-course-merge.py")
 code12 = read(Path(__file__).resolve().parent / "code-node-12-align-merge.py")
+code13 = read(Path(__file__).resolve().parent / "code-node-13-advisor-parse.py")
+code14 = read(Path(__file__).resolve().parent / "code-node-14-advisor-merge.py")
 code10 = read(Path(__file__).resolve().parent / "code-node-10-lit-queries.py")
 code11 = read(Path(__file__).resolve().parent / "code-node-11-lit-merge.py")
 PROP = ROOT / "proposal"
@@ -59,6 +61,7 @@ IFC, EXTC, CTX, PCHK, PCHK2 = ["17300000003%02d" % i for i in range(10, 15)]  # 
 CTXA, IFP, EXTP = ["17300000003%02d" % i for i in range(15, 18)]  # 授課計畫書合併、前期計畫書
 LITQ, LITP, LH1, LH2, LH3, LITM = ["17300000004%02d" % i for i in range(1, 7)]  # 文獻背景檢索（Google Scholar／SerpApi）
 IFA, ALN, ALM = ["17300000005%02d" % i for i in range(1, 4)]  # 對齊診斷（計畫書預審）
+ADV, ADVP, ADVH1, ADVH2, ADVLM, ADVM = ["17300000006%02d" % i for i in range(1, 7)]  # 學術顧問（v1.4）
 LV = LOOP  # 循環變數的 selector 前綴
 
 sys_gem = "{{#%s.sys_a#}}" % CTX
@@ -75,6 +78,8 @@ USER_REVIEW = """請審查以下稿件。
 {{#%(PC)s.extra_context#}}
 
 {{#%(LIT)s.lit_context#}}
+
+{{#%(ADVM)s.advisor_context#}}
 
 【作者已知待補事項（空白表示無）】
 {{#%(S)s.known_gaps#}}
@@ -273,9 +278,9 @@ nodes.append({
 
 # ① ② 審查者（模型名稱為占位，匯入後請在節點內重新選擇）
 nodes.append(llm_node(GEM, "① Gemini 審查（方法與論證）", "langgenius/gemini/google", "gemini-3.1-pro-preview",
-                      sys_gem, USER_REVIEW % {"L": LOOP, "S": START, "prior": "prior_gemini", "JR": CTX, "PC": PCHK, "LIT": LITM}, 160, 60, max_tokens=32000))
+                      sys_gem, USER_REVIEW % {"L": LOOP, "S": START, "prior": "prior_gemini", "JR": CTX, "PC": PCHK, "LIT": LITM, "ADVM": ADVM}, 160, 60, max_tokens=32000))
 nodes.append(llm_node(GPT, "② GPT 審查（文獻與格式）", "langgenius/openai/openai", "gpt-5",
-                      sys_gpt, USER_REVIEW % {"L": LOOP, "S": START, "prior": "prior_gpt", "JR": CTX, "PC": PCHK, "LIT": LITM}, 160, 460, max_tokens=32000))
+                      sys_gpt, USER_REVIEW % {"L": LOOP, "S": START, "prior": "prior_gpt", "JR": CTX, "PC": PCHK, "LIT": LITM, "ADVM": ADVM}, 160, 460, max_tokens=32000))
 
 # ③ 程式碼：解析並判斷
 nodes.append(code_node(C1, "③ 解析審查並判斷停止", code1, [
@@ -339,6 +344,7 @@ end_outputs = [  # (輸出名稱, 來源節點, 來源變數)
     ("preprocess_report", PRE, "report"), ("journal_source", CTX, "journal_source"), ("layout_spec", CTX, "layout_spec"), ("changes_digest", DIG, "changes_digest"),
     ("literature_report", LITM, "lit_report"), ("literature_context", LITM, "lit_context"),
     ("alignment_report", ALM, "align_report"), ("alignment_status", ALM, "align_status"),
+    ("advisor_report", ADVM, "advisor_report"), ("advisor_status", ADVM, "advisor_status"),
 ]
 nodes.append({
     "id": END, "type": "custom", "position": pos(6400, 260), "positionAbsolute": pos(6400, 260),
@@ -505,12 +511,13 @@ nodes.append(code_node(LITP, "文獻檢索：解析查詢", code10, [("llm_text"
                        [("q1", "string"), ("q2", "string"), ("q3", "string"), ("all", "string")], 4200, 560, inner=False))
 
 
-def http_node(nid, title, qvar, y, lr="lang_zh-TW"):
+def http_node(nid, title, qvar, y, lr="lang_zh-TW", src=None, x=4500):
+    src = src or LITP
     data = {
         "type": "http-request", "title": title, "desc": "SerpApi google_scholar；失敗不中斷流程", "selected": False,
         "method": "get", "url": "https://serpapi.com/search.json",
         "authorization": {"type": "no-auth", "config": None}, "headers": "",
-        "params": "engine:google_scholar\nq:{{#%s.%s#}}\nhl:zh-TW\nlr:%s\nnum:8\napi_key:{{#env.SERPAPI_KEY#}}" % (LITP, qvar, lr),
+        "params": "engine:google_scholar\nq:{{#%s.%s#}}\nhl:zh-TW\nlr:%s\nnum:8\napi_key:{{#env.SERPAPI_KEY#}}" % (src, qvar, lr),
         "body": {"type": "none", "data": []},
         "timeout": {"max_connect_timeout": 10, "max_read_timeout": 40, "max_write_timeout": 10},
         "retry_config": {"retry_enabled": True, "max_retries": 2, "retry_interval": 2000},
@@ -518,7 +525,7 @@ def http_node(nid, title, qvar, y, lr="lang_zh-TW"):
         "default_value": [{"key": "body", "type": "string", "value": ""}, {"key": "status_code", "type": "number", "value": 0},
                           {"key": "headers", "type": "object", "value": {}}],
     }
-    return base_node(nid, data, 4500, y, inner=False)
+    return base_node(nid, data, x, y, inner=False)
 
 
 nodes.append(http_node(LH1, "文獻檢索：Google Scholar 查詢1", "q1", 480))
@@ -546,6 +553,31 @@ nodes.append(llm_node(ALN, "對齊診斷（理論—項次對應）", "langgeniu
                       SYS_ALIGN, ALIGN_USER, 5400, 720, max_tokens=8000, inner=False, temperature=0.2))
 nodes.append(code_node(ALM, "合併對齊診斷", code12, [("llm_text", [ALN, "text"]), ("paper_type", [START, "paper_type"])],
                        [("align_report", "string"), ("align_status", "string")], 5700, 600, inner=False))
+
+
+
+# ---------- 學術顧問（v1.4；所有論文類型；循環開始前執行一次；失敗不中斷） ----------
+SYS_ADVISOR = read(ROOT / "reviewers" / "academic-advisor.md").split("## System prompt", 1)[1].split("## User prompt 模板", 1)[0].strip().rstrip("-").strip()
+ADVISOR_USER = ("【論文類型】{{#%(S)s.paper_type#}}\n\n【作者已知待補事項（空白表示無）】\n{{#%(S)s.known_gaps#}}\n\n"
+                "【文獻背景檢索結果（第一批，Google Scholar；僅作定位參考）】\n{{#%(LIT)s.lit_context#}}\n\n"
+                "【對齊診斷（計畫書預審才有；可空）】\n{{#%(ALM)s.align_report#}}\n\n"
+                "【稿件全文】\n<manuscript>\n{{#%(PRE)s.manuscript_ready#}}\n</manuscript>") % {"S": START, "LIT": LITM, "ALM": ALM, "PRE": PRE}
+_adv = llm_node(ADV, "學術顧問（理論／觀點／主題／方法）", "langgenius/anthropic/anthropic", "claude-sonnet-5",
+                SYS_ADVISOR, ADVISOR_USER, 6000, 900, max_tokens=9000, inner=False, temperature=0.4)
+_adv["data"]["desc"] = "建議選項與取捨；失敗不中斷。預算允許時可改選 Opus 級模型"
+_adv["data"]["error_strategy"] = "default-value"
+_adv["data"]["default_value"] = [{"key": "text", "type": "string", "value": ""}]
+nodes.append(_adv)
+nodes.append(code_node(ADVP, "解析學術顧問輸出", code13, [("llm_text", [ADV, "text"])],
+                       [("advisor_text", "string"), ("q1", "string"), ("q2", "string"), ("all", "string")], 6300, 900, inner=False))
+nodes.append(http_node(ADVH1, "顧問文獻檢索：查詢1（中文）", "q1", 840, src=ADVP, x=6600))
+nodes.append(http_node(ADVH2, "顧問文獻檢索：查詢2（英文）", "q2", 960, lr="lang_en", src=ADVP, x=6600))
+nodes.append(code_node(ADVLM, "顧問文獻檢索：整理結果", code11,
+                       [("b1", [ADVH1, "body"]), ("b2", [ADVH2, "body"]), ("queries", [ADVP, "all"])],
+                       [("lit_context", "string"), ("lit_report", "string")], 6900, 900, inner=False))
+nodes.append(code_node(ADVM, "合併學術顧問建議", code14,
+                       [("advisor_text", [ADVP, "advisor_text"]), ("lit2_context", [ADVLM, "lit_context"]), ("lit2_report", [ADVLM, "lit_report"])],
+                       [("advisor_context", "string"), ("advisor_report", "string"), ("advisor_status", "string")], 7200, 900, inner=False))
 
 type_of = {n["id"]: n["data"]["type"] for n in nodes}
 edges = []
@@ -591,7 +623,13 @@ edge(LITM, IFA, inner=False)
 edge(IFA, ALN, handle="true", inner=False)
 edge(IFA, ALM, handle="false", inner=False)
 edge(ALN, ALM, inner=False)
-edge(ALM, LOOP, inner=False)
+edge(ALM, ADV, inner=False)
+edge(ADV, ADVP, inner=False)
+for _h in (ADVH1, ADVH2):
+    edge(ADVP, _h, inner=False)
+    edge(_h, ADVLM, inner=False)
+edge(ADVLM, ADVM, inner=False)
+edge(ADVM, LOOP, inner=False)
 edge(LOOP, FMT, inner=False)
 edge(FMT, GUARD, inner=False)
 edge(GUARD, PCHK2, inner=False)
@@ -663,7 +701,7 @@ env_vars = [
 
 dsl = {
     "app": {"name": "期刊稿件審查與修訂迴圈", "mode": "workflow", "icon": "📝", "icon_background": "#FFEAD5",
-            "description": "Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式", "use_icon_as_answer_icon": False},
+            "description": "Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問", "use_icon_as_answer_icon": False},
     "kind": "app",
     "version": "0.3.1",
     "workflow": {
