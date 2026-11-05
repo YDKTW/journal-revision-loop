@@ -36,6 +36,9 @@ code9 = read(Path(__file__).resolve().parent / "code-node-9-course-merge.py")
 code12 = read(Path(__file__).resolve().parent / "code-node-12-align-merge.py")
 code13 = read(Path(__file__).resolve().parent / "code-node-13-advisor-parse.py")
 code14 = read(Path(__file__).resolve().parent / "code-node-14-advisor-merge.py")
+code15 = read(Path(__file__).resolve().parent / "code-node-15-cand.py")
+code16 = read(Path(__file__).resolve().parent / "code-node-16-sug-parse.py")
+code17 = read(Path(__file__).resolve().parent / "code-node-17-sug-merge.py")
 code10 = read(Path(__file__).resolve().parent / "code-node-10-lit-queries.py")
 code11 = read(Path(__file__).resolve().parent / "code-node-11-lit-merge.py")
 PROP = ROOT / "proposal"
@@ -62,6 +65,8 @@ CTXA, IFP, EXTP = ["17300000003%02d" % i for i in range(15, 18)]  # 授課計畫
 LITQ, LITP, LH1, LH2, LH3, LITM = ["17300000004%02d" % i for i in range(1, 7)]  # 文獻背景檢索（Google Scholar／SerpApi）
 IFA, ALN, ALM = ["17300000005%02d" % i for i in range(1, 4)]  # 對齊診斷（計畫書預審）
 ADV, ADVP, ADVH1, ADVH2, ADVLM, ADVM = ["17300000006%02d" % i for i in range(1, 7)]  # 學術顧問（v1.4）
+CAND, SUG, SUGP, SUGM = ["17300000007%02d" % i for i in (1, 2, 3, 10)]  # 理論補強標註（v1.5）
+CR = ["17300000007%02d" % i for i in range(4, 10)]  # 六個 Crossref 查詢
 LV = LOOP  # 循環變數的 selector 前綴
 
 sys_gem = "{{#%s.sys_a#}}" % CTX
@@ -345,6 +350,7 @@ end_outputs = [  # (輸出名稱, 來源節點, 來源變數)
     ("literature_report", LITM, "lit_report"), ("literature_context", LITM, "lit_context"),
     ("alignment_report", ALM, "align_report"), ("alignment_status", ALM, "align_status"),
     ("advisor_report", ADVM, "advisor_report"), ("advisor_status", ADVM, "advisor_status"),
+    ("annotated_manuscript", SUGM, "annotated_manuscript"), ("annotated_html", SUGM, "annotated_html"), ("suggestion_report", SUGM, "suggestion_report"), ("suggestion_status", SUGP, "status"),
 ]
 nodes.append({
     "id": END, "type": "custom", "position": pos(6400, 260), "positionAbsolute": pos(6400, 260),
@@ -579,6 +585,50 @@ nodes.append(code_node(ADVM, "合併學術顧問建議", code14,
                        [("advisor_text", [ADVP, "advisor_text"]), ("lit2_context", [ADVLM, "lit_context"]), ("lit2_report", [ADVLM, "lit_report"])],
                        [("advisor_context", "string"), ("advisor_report", "string"), ("advisor_status", "string")], 7200, 900, inner=False))
 
+
+
+# ---------- 理論補強標註（v1.5；迴圈結束、產生報告之後執行一次；失敗不中斷） ----------
+SYS_SUG = read(ROOT / "reviewers" / "theory-suggester.md").split("## System prompt", 1)[1].split("## User prompt 模板", 1)[0].strip().rstrip("-").strip()
+SUG_USER = ("【論文類型】{{#%(S)s.paper_type#}}\n\n【學術顧問先前的建議（僅供參考，須對照稿件自行判斷；可空）】\n{{#%(ADVP)s.advisor_text#}}\n\n"
+            "【候選文獻清單（只能引用這裡的編號）】\n{{#%(CAND)s.cand_list#}}\n\n"
+            "【最終稿全文】\n<manuscript>\n{{#%(GUARD)s.final_manuscript#}}\n</manuscript>") % {"S": START, "ADVP": ADVP, "CAND": CAND, "GUARD": GUARD}
+nodes.append(code_node(CAND, "整理候選文獻（兩批檢索合併）", code15,
+                       [("b1", [LH1, "body"]), ("b2", [LH2, "body"]), ("b3", [LH3, "body"]), ("b4", [ADVH1, "body"]), ("b5", [ADVH2, "body"])],
+                       [("cand_list", "string"), ("cand_json", "string")], 6600, 1200, inner=False))
+_sug = llm_node(SUG, "理論補強標註（錨點句＋建議＋文獻編號）", "langgenius/anthropic/anthropic", "claude-sonnet-5",
+                SYS_SUG, SUG_USER, 6900, 1200, max_tokens=12000, inner=False, temperature=None)
+_sug["data"]["desc"] = "只輸出 JSON；不改正文；失敗不中斷"
+_sug["data"]["error_strategy"] = "default-value"
+_sug["data"]["default_value"] = [{"key": "text", "type": "string", "value": ""}]
+nodes.append(_sug)
+nodes.append(code_node(SUGP, "驗證建議並產生 Crossref 查詢", code16,
+                       [("llm_text", [SUG, "text"]), ("manuscript", [GUARD, "final_manuscript"]), ("cand_json", [CAND, "cand_json"])],
+                       [("sug_json", "string"), ("q1", "string"), ("q2", "string"), ("q3", "string"), ("q4", "string"), ("q5", "string"), ("q6", "string"), ("status", "string")],
+                       7200, 1200, inner=False))
+
+
+def crossref_node(nid, i, y):
+    data = {
+        "type": "http-request", "title": "Crossref 書目核對 %d" % i, "desc": "api.crossref.org；失敗不中斷流程", "selected": False,
+        "method": "get", "url": "https://api.crossref.org/works",
+        "authorization": {"type": "no-auth", "config": None}, "headers": "",
+        "params": "query.bibliographic:{{#%s.q%d#}}\nrows:3\nselect:title,author,issued,container-title,volume,issue,page,DOI" % (SUGP, i),
+        "body": {"type": "none", "data": []},
+        "timeout": {"max_connect_timeout": 10, "max_read_timeout": 30, "max_write_timeout": 10},
+        "retry_config": {"retry_enabled": True, "max_retries": 1, "retry_interval": 1500},
+        "error_strategy": "default-value",
+        "default_value": [{"key": "body", "type": "string", "value": ""}, {"key": "status_code", "type": "number", "value": 0},
+                          {"key": "headers", "type": "object", "value": {}}],
+    }
+    return base_node(nid, data, 7500, y, inner=False)
+
+
+for _i, _nid in enumerate(CR, 1):
+    nodes.append(crossref_node(_nid, _i, 1080 + 100 * _i))
+nodes.append(code_node(SUGM, "插入紅字建議並附建議參考文獻", code17,
+                       [("manuscript", [GUARD, "final_manuscript"]), ("sug_json", [SUGP, "sug_json"])] + [("c%d" % i, [CR[i - 1], "body"]) for i in range(1, 7)],
+                       [("annotated_manuscript", "string"), ("annotated_html", "string"), ("suggestion_report", "string")], 7800, 1200, inner=False))
+
 type_of = {n["id"]: n["data"]["type"] for n in nodes}
 edges = []
 
@@ -636,7 +686,13 @@ edge(GUARD, PCHK2, inner=False)
 edge(PCHK2, DIG, inner=False)
 edge(DIG, FINAL, inner=False)
 edge(FINAL, REP, inner=False)
-edge(REP, END, inner=False)
+edge(REP, CAND, inner=False)
+edge(CAND, SUG, inner=False)
+edge(SUG, SUGP, inner=False)
+for _c in CR:
+    edge(SUGP, _c, inner=False)
+    edge(_c, SUGM, inner=False)
+edge(SUGM, END, inner=False)
 edge(LSTART, PCHK)
 edge(PCHK, GEM)
 edge(PCHK, GPT)
@@ -701,7 +757,7 @@ env_vars = [
 
 dsl = {
     "app": {"name": "期刊稿件審查與修訂迴圈", "mode": "workflow", "icon": "📝", "icon_background": "#FFEAD5",
-            "description": "Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問", "use_icon_as_answer_icon": False},
+            "description": "Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註", "use_icon_as_answer_icon": False},
     "kind": "app",
     "version": "0.3.1",
     "workflow": {

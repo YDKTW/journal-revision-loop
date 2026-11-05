@@ -146,3 +146,13 @@ python tools/export_docx.py result.json -o 修訂稿.docx --also-doc --also-pdf
 - GPT-5 審查：不再傳送 temperature（該模型不支援）；Max Tokens 32000。
 - Claude 各節點不再傳送 temperature（開啟 Adaptive Thinking 時不可自訂）：修稿 Max Tokens 16000；終審 20000；對齊診斷 16000；學術顧問改用 claude-opus-5、24000。
 - Adaptive Thinking、Effort、Thinking Display 無法由 DSL 設定，匯入後請在節點內手動確認（建議值見對話紀錄：學術顧問 開／high；對齊診斷 開／high；終審 開／medium 或 high；修稿 關／medium）。
+
+## v1.5.0：理論補強紅字標註與建議文獻
+
+- 新增在迴圈結束、報告產生之後的流程（失敗不中斷）：整理候選文獻 → 理論補強標註（LLM，只輸出 JSON）→ 程式驗證 → 六個 Crossref 書目核對 → 插入紅字區塊。
+- 標註者不改任何正文。每則建議必須有「錨點句」（稿中逐字出現且唯一，不在表格、標題或 LOCK 區塊內），程式驗證不通過的建議一律略過。每份稿件最多 8 則建議。
+- 建議文獻：只能引用兩批 Google Scholar 檢索清單（第一批三組、顧問批兩組，合併去重最多 40 筆）中的編號，每則建議最多 3 筆，全稿不重複最多 6 筆。LLM 不能自行提供書目。
+- 書目欄位只使用檢索結果與 Crossref 回傳的內容：標題相似度 ≥ 0.85 才標「已以 Crossref 核對」並依 Crossref 欄位排成書目；否則只列檢索結果的標題、出處與連結，並註明「書目欄位不完整、未經核對」。不補寫任何欄位。中文期刊在 Crossref 的涵蓋有限，未核對者很常見。
+- 新增輸出：annotated_manuscript（標記版，區塊以【理論補強建議 Sn｜待作者評估是否採用】與【建議參考文獻…】開頭，供匯出端染紅）、annotated_html（已染紅的 HTML）、suggestion_report、suggestion_status。乾淨的 final_manuscript 不受影響。
+- 需要 SERPAPI_KEY：未設定時沒有候選文獻，建議仍可產生，但不會附文獻。
+- 預估增加 2–4 分鐘；總時間逼近 20 分鐘時，可把「理論補強標註」節點的 Effort 降為 medium，或關閉 Adaptive Thinking。
