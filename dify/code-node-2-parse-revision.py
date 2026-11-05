@@ -84,8 +84,39 @@ def _squash_map(text):
     return "".join(chars), idx
 
 
+SKIP_RE = re.compile(r"<!--.*?-->|〔?【(?:待作者補充|待作者確認|建議補充)[^】]*】〕?|\*\*|__|`")
+FUZZ_MIN = 24  # 模糊定位只用於長度足夠的原句
+FUZZ_HEAD = 10  # 以頭尾各 10 個字定位
+
+
+def _core_map(text):
+    """只保留文字與數字（含中日韓字元），略過空白、標點、Markdown 符號、<!--…--> 與【待作者…】標記；回傳 (字串, 每字在原文位置)。"""
+    skip = [False] * len(text)
+    for m in SKIP_RE.finditer(text):
+        for k in range(m.start(), m.end()):
+            skip[k] = True
+    chars, idx = [], []
+    for i, ch in enumerate(text):
+        if not skip[i] and ch.isalnum():
+            chars.append(ch.lower())
+            idx.append(i)
+    return "".join(chars), idx
+
+
+def _ext_tail(old, find, end):
+    """模糊定位的結尾若落在標點前（例如括號、句號），把 find 結尾帶有的同數量標點一併納入，避免取代後留下孤立標點。"""
+    import unicodedata
+    tail = re.search(r"[^\w\s]+$", unicodedata.normalize("NFKC", find))
+    k = len(tail.group(0)) if tail else 0
+    while k > 0 and end < len(old) and not old[end].isalnum() and not old[end].isspace() and old[end] not in "<【":
+        end += 1
+        k -= 1
+    return end
+
+
 def _locate(old, find):
-    """在舊稿中找 find；回傳 (start, end, 錯誤訊息)。先精確比對，找不到再忽略空白與換行比對。必須唯一。"""
+    """在舊稿中找 find；回傳 (start, end, 錯誤訊息)。
+    依序嘗試：① 精確比對 ② 忽略空白與換行 ③ 忽略標點、全半形差異、Markdown 與先前標記 ④ 長句以頭尾片段定位（需唯一、長度相近）。每一層都必須唯一。"""
     n = old.count(find)
     if n == 1:
         i = old.index(find)
@@ -97,12 +128,30 @@ def _locate(old, find):
     if len(sq_find) < MIN_FIND:
         return None, None, "引用的原句太短"
     c = sq_old.count(sq_find)
-    if c == 0:
-        return None, None, "在稿中找不到這段原句"
+    if c == 1:
+        j = sq_old.index(sq_find)
+        return idx[j], idx[j + len(sq_find) - 1] + 1, ""
     if c > 1:
         return None, None, "原句（忽略空白後）在稿中出現 %d 次，無法判斷改哪一處" % c
-    j = sq_old.index(sq_find)
-    return idx[j], idx[j + len(sq_find) - 1] + 1, ""
+    # ③ 忽略標點／全半形／標記
+    import unicodedata
+    co_old, cidx = _core_map(unicodedata.normalize("NFKC", old)) if len(unicodedata.normalize("NFKC", old)) == len(old) else _core_map(old)
+    co_find, _ = _core_map(unicodedata.normalize("NFKC", find))
+    if len(co_find) >= MIN_FIND:
+        c = co_old.count(co_find)
+        if c == 1:
+            j = co_old.index(co_find)
+            return cidx[j], _ext_tail(old, find, cidx[j + len(co_find) - 1] + 1), ""
+        if c > 1:
+            return None, None, "原句（忽略標點後）在稿中出現 %d 次，無法判斷改哪一處" % c
+        # ④ 頭尾片段
+        if len(co_find) >= FUZZ_MIN:
+            h, t = co_find[:FUZZ_HEAD], co_find[-FUZZ_HEAD:]
+            if co_old.count(h) == 1 and co_old.count(t) == 1:
+                i, k = co_old.index(h), co_old.index(t) + FUZZ_HEAD
+                if k > i and 0.6 * len(co_find) <= (k - i) <= 1.6 * len(co_find):
+                    return cidx[i], _ext_tail(old, find, cidx[k - 1] + 1), ""
+    return None, None, "在稿中找不到這段原句"
 
 
 def _round_of(ids):

@@ -757,7 +757,7 @@ env_vars = [
 
 dsl = {
     "app": {"name": "期刊稿件審查與修訂迴圈", "mode": "workflow", "icon": "📝", "icon_background": "#FFEAD5",
-            "description": "Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註；v1.5.1 修正 Crossref 查詢與建議文獻去重；v1.5.2 中文題名改以 OpenAlex 核對；v1.5.3 修稿輸出上限 32000、書目題名去除 HTML 實體；v1.5.4 空位查詢改走 OpenAlex、重試 2 次", "use_icon_as_answer_icon": False},
+            "description": "Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註；v1.5.1 修正 Crossref 查詢與建議文獻去重；v1.5.2 中文題名改以 OpenAlex 核對；v1.5.3 修稿輸出上限 32000、書目題名去除 HTML 實體；v1.5.4 空位查詢改走 OpenAlex、重試 2 次；v1.5.5 修稿原句比對放寬", "use_icon_as_answer_icon": False},
     "kind": "app",
     "version": "0.3.1",
     "workflow": {

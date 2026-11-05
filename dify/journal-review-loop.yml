@@ -3,14 +3,14 @@ app:
   mode: workflow
   icon: 📝
   icon_background: '#FFEAD5'
-  description: Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註；v1.5.1 修正 Crossref 查詢與建議文獻去重；v1.5.2 中文題名改以 OpenAlex 核對；v1.5.3 修稿輸出上限 32000、書目題名去除 HTML 實體；v1.5.4 空位查詢改走 OpenAlex、重試 2 次
+  description: Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註；v1.5.1 修正 Crossref 查詢與建議文獻去重；v1.5.2 中文題名改以 OpenAlex 核對；v1.5.3 修稿輸出上限 32000、書目題名去除 HTML 實體；v1.5.4 空位查詢改走 OpenAlex、重試 2 次；v1.5.5 修稿原句比對放寬
   use_icon_as_answer_icon: false
 kind: app
 version: 0.3.1
 workflow:
   conversation_variables: []
   environment_variables:
-  - id: 79e80cf4-b173-476e-afb2-c42ac24b62bb
+  - id: 27b0515c-d19c-4eb1-8ad3-100dc5383194
     name: RUBRIC
     selector:
     - env
@@ -275,7 +275,7 @@ workflow:
       `id` 編碼規則：`{G|P}-R{輪次}-{序號}`，G 代表 Gemini，P 代表 GPT，供修稿者在對照表中逐條回應。
     value_type: string
     description: 審查標準全文（review-rubric.md）
-  - id: a40a6dff-9e3c-41d1-9956-b854cedebc83
+  - id: c9df5087-d732-4b82-9424-eaab86388c3b
     name: RUBRIC_PROPOSAL
     selector:
     - env
@@ -530,7 +530,7 @@ workflow:
 
     value_type: string
     description: 教學實踐研究計畫書預審標準
-  - id: 30f68e84-53bd-49db-a2b5-21914acc0957
+  - id: f9199ec5-5233-43fb-85d2-cd1a802760ff
     name: SYS_A_JOURNAL
     selector:
     - env
@@ -606,7 +606,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查A系統提示（期刊；含 {{rubric}}、{{paper_type}} 占位符）
-  - id: 26036bbe-f9a0-40fd-9546-b370a7dbdb5f
+  - id: 38c815a0-eae2-431e-9908-aa095acdc322
     name: SYS_B_JOURNAL
     selector:
     - env
@@ -713,7 +713,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查B系統提示（期刊）
-  - id: da97e4b3-dab3-4512-85eb-c92048e3aea2
+  - id: 001d6f23-5227-46c1-a492-10263d8405c3
     name: SYS_A_PROPOSAL
     selector:
     - env
@@ -810,7 +810,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查A系統提示（計畫書）
-  - id: a836e988-fc17-449f-b1a0-5f1df1f241f0
+  - id: 3d76a6cb-e4f8-4120-96a0-526989687169
     name: SYS_B_PROPOSAL
     selector:
     - env
@@ -901,7 +901,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查B系統提示（計畫書）
-  - id: f91f287d-35fd-4180-879b-b5d21325c89d
+  - id: 971fb93c-0378-4eac-a73f-99c7c5a56d02
     name: REVISER_SKILL_PROPOSAL
     selector:
     - env
@@ -1070,7 +1070,12 @@ workflow:
 
       **修改清單的寫法（程式會逐字比對，違反時該筆修改會被略過）：**
       1. `action` 只有四種：`replace`（取代）、`insert_after`（插在錨點後）、`insert_before`（插在錨點前）、`delete`（刪除）。
-      2. `<find>` 必須**逐字複製**當前稿件中的文字，含標點與數字，不得改寫、不得省略；長度以一整句或一個短段落為宜（約 15 至 80 字），**要長到在全稿中只出現一次**。若同一句在稿中出現多次，把前後文多帶幾個字。
+      2. `<find>` 必須**逐字複製**當前稿件中的文字，含標點與數字，不得改寫、不得省略、不得翻譯或同義改寫。
+         - **只能從【當前稿件】複製**：不得從審查意見、參考文獻清單、文獻檢索結果、上一輪的修訂對照表複製，也不得憑記憶或印象重寫。
+         - **取短片段，不要取整句**：取「兩個標點之間」或一句中的一個子句，約 12 至 40 字即可；越長越容易在抄寫時走樣。要長到在全稿中只出現一次；同一片段在稿中出現多次時，往前或往後多帶幾個字。
+         - **避開不穩定的文字**：不要把 `<!--R…-->` 標記、`【待作者…】` 標記、表格列（以 `|` 開頭的行）、`<!--LOCK-->` 區塊放進 `<find>`。
+         - **輸出前逐筆自我檢查**：回頭到【當前稿件】裡找到這段文字，確認它真的存在、一字不差；找不到就換成附近一句確實存在的話當錨點（`insert_after`／`insert_before`）。
+         - 實在找不到可靠的錨點，就不要寫這一筆 `<edit>`，在 `response_table` 與 `dispositions` 標為「需人工處理」並說明原因；**不得為了湊數而寫出稿中沒有的句子**。
       3. `<find>` 不得跨越 `<!--LOCK-->…<!--/LOCK-->` 區塊，也不得包含這兩個標記；要在受保護區塊旁加註時，錨點取區塊之外的相鄰句子。
          **意見指向的位置在鎖定表格內（例如「表 1」「表 10」「表 11」的儲存格）時**：不得以表格內的字句當 `<find>`。改用該表**前後緊鄰、不在 LOCK 內的一句話**當錨點，用 `insert_after`／`insert_before` 加上【待作者補充／確認：…（指表 N 的哪一列哪一欄）】；找不到緊鄰的非鎖定句子時，該意見在 response_table 處理為「需人工處理」，不得宣稱已加標記。
          **意見針對的是程式檢查結果、頁數估算等不在稿件正文中的資訊時**：不要為它寫 `<edit>`，在 response_table 處理為「需人工處理」，說明「此項由作者以 Word 實測處理」。
@@ -1164,7 +1169,7 @@ workflow:
       全部使用繁體中文（臺灣慣用語），不得夾雜簡體字。
     value_type: string
     description: 修稿者 Skill（計畫書版：期刊通則＋計畫書補充規則）
-  - id: 1a2c5f40-6f5d-4a6f-a65b-0de82e038c68
+  - id: a5127e34-9cbb-4c88-97ba-69d2d954d726
     name: SYS_FINAL_JOURNAL
     selector:
     - env
@@ -1244,7 +1249,7 @@ workflow:
          - 第六節第一點須建議：將 `max_rounds` 調為 2 以上，讓系統進入修稿與複審。
     value_type: string
     description: 終審系統提示（期刊）
-  - id: 97c4541e-8ba1-4e76-b7c7-63b126f3e19a
+  - id: 2040d430-18f3-4533-9e1e-2d75c3b21271
     name: SYS_FINAL_PROPOSAL
     selector:
     - env
@@ -1326,7 +1331,7 @@ workflow:
       ---
     value_type: string
     description: 終審系統提示（計畫書）
-  - id: c0a3ee33-71f9-4e85-9934-76a39187b801
+  - id: b8e8d430-7f25-4067-95f0-0c692ce6225e
     name: DEFAULT_FORMAT_PROPOSAL
     selector:
     - env
@@ -1342,7 +1347,7 @@ workflow:
       - 研究倫理：涉及心理資訊（焦慮、情緒、壓力等）、特殊身分研究對象，或實驗組／對照組設計者，應規劃研究倫理審查；其餘須有研究參與者招募與知情同意規劃；學生資料須去識別化。
     value_type: string
     description: 計畫書官方格式摘要（未上傳其他格式檔時使用）
-  - id: 68b71201-a1fb-4823-bed6-4e689f64650c
+  - id: c79f2f7a-27b7-4e12-a525-4de30f7e686d
     name: LAYOUT_PROPOSAL
     selector:
     - env
@@ -1411,7 +1416,7 @@ workflow:
       }
     value_type: string
     description: 計畫書官方版面規格（Word 匯出用）
-  - id: d3340010-3250-48f6-8dcc-abc89089c1aa
+  - id: 319a2c32-77fa-4086-85f6-140a22b58d98
     name: REVISER_SKILL
     selector:
     - env
@@ -1580,7 +1585,12 @@ workflow:
 
       **修改清單的寫法（程式會逐字比對，違反時該筆修改會被略過）：**
       1. `action` 只有四種：`replace`（取代）、`insert_after`（插在錨點後）、`insert_before`（插在錨點前）、`delete`（刪除）。
-      2. `<find>` 必須**逐字複製**當前稿件中的文字，含標點與數字，不得改寫、不得省略；長度以一整句或一個短段落為宜（約 15 至 80 字），**要長到在全稿中只出現一次**。若同一句在稿中出現多次，把前後文多帶幾個字。
+      2. `<find>` 必須**逐字複製**當前稿件中的文字，含標點與數字，不得改寫、不得省略、不得翻譯或同義改寫。
+         - **只能從【當前稿件】複製**：不得從審查意見、參考文獻清單、文獻檢索結果、上一輪的修訂對照表複製，也不得憑記憶或印象重寫。
+         - **取短片段，不要取整句**：取「兩個標點之間」或一句中的一個子句，約 12 至 40 字即可；越長越容易在抄寫時走樣。要長到在全稿中只出現一次；同一片段在稿中出現多次時，往前或往後多帶幾個字。
+         - **避開不穩定的文字**：不要把 `<!--R…-->` 標記、`【待作者…】` 標記、表格列（以 `|` 開頭的行）、`<!--LOCK-->` 區塊放進 `<find>`。
+         - **輸出前逐筆自我檢查**：回頭到【當前稿件】裡找到這段文字，確認它真的存在、一字不差；找不到就換成附近一句確實存在的話當錨點（`insert_after`／`insert_before`）。
+         - 實在找不到可靠的錨點，就不要寫這一筆 `<edit>`，在 `response_table` 與 `dispositions` 標為「需人工處理」並說明原因；**不得為了湊數而寫出稿中沒有的句子**。
       3. `<find>` 不得跨越 `<!--LOCK-->…<!--/LOCK-->` 區塊，也不得包含這兩個標記；要在受保護區塊旁加註時，錨點取區塊之外的相鄰句子。
          **意見指向的位置在鎖定表格內（例如「表 1」「表 10」「表 11」的儲存格）時**：不得以表格內的字句當 `<find>`。改用該表**前後緊鄰、不在 LOCK 內的一句話**當錨點，用 `insert_after`／`insert_before` 加上【待作者補充／確認：…（指表 N 的哪一列哪一欄）】；找不到緊鄰的非鎖定句子時，該意見在 response_table 處理為「需人工處理」，不得宣稱已加標記。
          **意見針對的是程式檢查結果、頁數估算等不在稿件正文中的資訊時**：不要為它寫 `<edit>`，在 response_table 處理為「需人工處理」，說明「此項由作者以 Word 實測處理」。
@@ -1622,7 +1632,7 @@ workflow:
       **本次為自動化模式**，請依「自動化模式的輸出包裝」輸出 `<edits>`（只列要改的句子，不要輸出全文）、`<response_table>`、`<summary_json>`、`<plain_summary>` 四個標籤。
     value_type: string
     description: 修稿者 Skill 本文
-  - id: e02abeff-fb5f-4cb1-8c3a-83dec90c8561
+  - id: a3eb8dff-1643-4b1f-9913-42520186ab5a
     name: SERPAPI_KEY
     selector:
     - env
@@ -1630,7 +1640,7 @@ workflow:
     value: ''
     value_type: secret
     description: SerpApi 金鑰（Google Scholar 文獻檢索）。留空則略過文獻檢索，其他流程照常
-  - id: d6d4884b-65b9-4cba-a837-ee357407cd42
+  - id: 75986a46-e004-4cf0-9252-6c27f8a42863
     name: DEFAULT_FORMAT_RULES
     selector:
     - env
@@ -2623,7 +2633,7 @@ workflow:
         width: 2000
         height: 640
         break_conditions:
-        - id: 6f61afcc-b03e-4eaf-8045-32ad72632884
+        - id: a4376430-291b-4849-8de6-5f47e25e17ce
           varType: string
           variable_selector:
           - '1730000000002'
@@ -2631,98 +2641,98 @@ workflow:
           comparison_operator: is not
           value: continue
         loop_variables:
-        - id: 78b68f93-65c1-458a-90cc-64512c4d677a
+        - id: 4a5ba893-3155-434d-a033-615a5fa9e065
           label: current_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: 85fb29d1-bd38-4eb5-a353-12d76b80f852
+        - id: db01e528-50b9-4323-b372-1d88a97fb5c9
           label: prev_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: 8c03f064-2d6a-447b-a937-dd890a09e48f
+        - id: c58beef8-9122-4781-abf5-f46e9bfda718
           label: orig_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: 4a30ce5b-0666-4aae-a95f-2125e88c6c61
+        - id: a61df544-db81-465d-86a9-6f5fa15afb13
           label: round_no
           var_type: number
           value_type: constant
           value: 1
-        - id: a8c74411-75c0-4447-8839-2aa1e03ac140
+        - id: f36b57c7-2d30-4d8b-b682-1b9564def114
           label: decision
           var_type: string
           value_type: constant
           value: continue
-        - id: 90df8c07-c77f-404e-a851-395bdef4dd98
+        - id: b5d0667f-d2ab-4f68-bf42-26f83d259b0b
           label: prev_total
           var_type: number
           value_type: constant
           value: 0
-        - id: c128387b-b3c1-4851-936c-7f1cb3c7429b
+        - id: 3fc21433-064d-4366-b3c0-eb273ccb03ae
           label: prev_major
           var_type: number
           value_type: constant
           value: 0
-        - id: 42e219ea-c7bd-4ab7-a9d2-fd82103bdd99
+        - id: 8710981c-2c0a-4a23-a4d7-29bd92babc2a
           label: pass_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: bd7c7f12-0948-42a1-8a13-9ee712f7559d
+        - id: 103d24ab-fc89-4ba6-9a31-5ef48d1ba275
           label: stall_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: 9e44425e-a3bb-41c9-9779-4d0f9a455c0d
+        - id: 2c4002fe-24cc-4b81-a81a-163aa37d946b
           label: fail_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: 6a35155b-2db0-4a13-931f-116893c6c674
+        - id: 8c8784d2-158f-4d3e-8ffa-916244d1128d
           label: history
           var_type: string
           value_type: constant
           value: ''
-        - id: 483002a7-aa8c-4104-af10-3f35ae53f541
+        - id: 81173b33-7134-4778-959c-286c7ffd7784
           label: prior_gemini
           var_type: string
           value_type: constant
           value: '[]'
-        - id: 2af04f74-5fed-4642-b573-db349837eef9
+        - id: e1920e9e-8ed0-4b94-a329-a92cfe9fb9c0
           label: prior_gpt
           var_type: string
           value_type: constant
           value: '[]'
-        - id: 11ff2240-2825-4ca3-977d-9ee4d1d3df0a
+        - id: c44456bb-ee86-4631-bc1c-3113d829409e
           label: response_summary
           var_type: string
           value_type: constant
           value: ''
-        - id: aaf9c543-6622-4e8a-b7ed-847d5169b753
+        - id: 481a3be1-63b8-4e9f-81e8-a00cb2da884a
           label: last_response_table
           var_type: string
           value_type: constant
           value: ''
-        - id: b12387ef-4591-47a7-8b5d-936273a81424
+        - id: 249b814b-41c9-4912-b968-5765cde43a09
           label: last_marked
           var_type: string
           value_type: constant
           value: ''
-        - id: a192cd5b-7f9f-4a51-bddf-8c601d029723
+        - id: 535fc5cd-9c36-4ad3-9a18-01fa5e408101
           label: last_flags
           var_type: string
           value_type: constant
           value: ''
-        - id: 2d54c5c1-4b2a-4c25-8e37-dbd749a2b824
+        - id: 6780f198-ac1e-44cc-b33c-8e137fa6a515
           label: last_reason
           var_type: string
           value_type: constant
@@ -2768,10 +2778,10 @@ workflow:
             temperature: 1.0
             max_tokens: 32000
         prompt_template:
-        - id: a98c3199-8c76-49e5-9782-b0c5c9cb1e00
+        - id: 1d5fb285-0bd7-4f93-9d3b-f095f94aed82
           role: system
           text: '{{#1730000000312.sys_a#}}'
-        - id: 5a900c3e-6649-4167-b953-faf5998f30df
+        - id: a4904193-8dd9-46d4-aeb2-faa7e00d1ef2
           role: user
           text: |-
             請審查以下稿件。
@@ -2843,10 +2853,10 @@ workflow:
           completion_params:
             max_tokens: 32000
         prompt_template:
-        - id: 7c0deea8-14c3-4180-b7aa-9216c409bde6
+        - id: 68a51441-e220-4986-82ed-8f1c809943d4
           role: system
           text: '{{#1730000000312.sys_b#}}'
-        - id: dfe1bd4f-d3f1-4cbf-ba8f-f8cfd077113a
+        - id: 3f226ffd-98db-47bf-8a02-64984270a157
           role: user
           text: |-
             請審查以下稿件。
@@ -3686,7 +3696,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 7028f439-bc96-42e0-b567-936594bab47f
+          - id: c69ffa74-a7fd-419a-a707-4ea914002472
             varType: string
             variable_selector:
             - '1730000000002'
@@ -3726,10 +3736,10 @@ workflow:
           completion_params:
             max_tokens: 32000
         prompt_template:
-        - id: f3733821-27fa-4f87-b2a2-b392c554cfa1
+        - id: 8f11e5de-e790-428e-a075-7f9511cef453
           role: system
           text: '{{#1730000000312.reviser_system#}}'
-        - id: a98390cd-4265-4cd1-94e8-afb83c19a38c
+        - id: 0673da82-6af4-462e-a1f8-84fb2cc741ea
           role: user
           text: |-
             【輪次】{{#1730000000002.round_no#}}
@@ -3868,8 +3878,39 @@ workflow:
               return "".join(chars), idx
 
 
+          SKIP_RE = re.compile(r"<!--.*?-->|〔?【(?:待作者補充|待作者確認|建議補充)[^】]*】〕?|\*\*|__|`")
+          FUZZ_MIN = 24  # 模糊定位只用於長度足夠的原句
+          FUZZ_HEAD = 10  # 以頭尾各 10 個字定位
+
+
+          def _core_map(text):
+              """只保留文字與數字（含中日韓字元），略過空白、標點、Markdown 符號、<!--…--> 與【待作者…】標記；回傳 (字串, 每字在原文位置)。"""
+              skip = [False] * len(text)
+              for m in SKIP_RE.finditer(text):
+                  for k in range(m.start(), m.end()):
+                      skip[k] = True
+              chars, idx = [], []
+              for i, ch in enumerate(text):
+                  if not skip[i] and ch.isalnum():
+                      chars.append(ch.lower())
+                      idx.append(i)
+              return "".join(chars), idx
+
+
+          def _ext_tail(old, find, end):
+              """模糊定位的結尾若落在標點前（例如括號、句號），把 find 結尾帶有的同數量標點一併納入，避免取代後留下孤立標點。"""
+              import unicodedata
+              tail = re.search(r"[^\w\s]+$", unicodedata.normalize("NFKC", find))
+              k = len(tail.group(0)) if tail else 0
+              while k > 0 and end < len(old) and not old[end].isalnum() and not old[end].isspace() and old[end] not in "<【":
+                  end += 1
+                  k -= 1
+              return end
+
+
           def _locate(old, find):
-              """在舊稿中找 find；回傳 (start, end, 錯誤訊息)。先精確比對，找不到再忽略空白與換行比對。必須唯一。"""
+              """在舊稿中找 find；回傳 (start, end, 錯誤訊息)。
+              依序嘗試：① 精確比對 ② 忽略空白與換行 ③ 忽略標點、全半形差異、Markdown 與先前標記 ④ 長句以頭尾片段定位（需唯一、長度相近）。每一層都必須唯一。"""
               n = old.count(find)
               if n == 1:
                   i = old.index(find)
@@ -3881,12 +3922,30 @@ workflow:
               if len(sq_find) < MIN_FIND:
                   return None, None, "引用的原句太短"
               c = sq_old.count(sq_find)
-              if c == 0:
-                  return None, None, "在稿中找不到這段原句"
+              if c == 1:
+                  j = sq_old.index(sq_find)
+                  return idx[j], idx[j + len(sq_find) - 1] + 1, ""
               if c > 1:
                   return None, None, "原句（忽略空白後）在稿中出現 %d 次，無法判斷改哪一處" % c
-              j = sq_old.index(sq_find)
-              return idx[j], idx[j + len(sq_find) - 1] + 1, ""
+              # ③ 忽略標點／全半形／標記
+              import unicodedata
+              co_old, cidx = _core_map(unicodedata.normalize("NFKC", old)) if len(unicodedata.normalize("NFKC", old)) == len(old) else _core_map(old)
+              co_find, _ = _core_map(unicodedata.normalize("NFKC", find))
+              if len(co_find) >= MIN_FIND:
+                  c = co_old.count(co_find)
+                  if c == 1:
+                      j = co_old.index(co_find)
+                      return cidx[j], _ext_tail(old, find, cidx[j + len(co_find) - 1] + 1), ""
+                  if c > 1:
+                      return None, None, "原句（忽略標點後）在稿中出現 %d 次，無法判斷改哪一處" % c
+                  # ④ 頭尾片段
+                  if len(co_find) >= FUZZ_MIN:
+                      h, t = co_find[:FUZZ_HEAD], co_find[-FUZZ_HEAD:]
+                      if co_old.count(h) == 1 and co_old.count(t) == 1:
+                          i, k = co_old.index(h), co_old.index(t) + FUZZ_HEAD
+                          if k > i and 0.6 * len(co_find) <= (k - i) <= 1.6 * len(co_find):
+                              return cidx[i], _ext_tail(old, find, cidx[k - 1] + 1), ""
+              return None, None, "在稿中找不到這段原句"
 
 
           def _round_of(ids):
@@ -4418,7 +4477,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: ea2d6d25-2f1a-4c9d-aa06-9bca8073d326
+          - id: eeb18015-f43b-45a9-aec9-5d83e3c31418
             varType: string
             variable_selector:
             - '1730000000001'
@@ -4881,7 +4940,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 842d6193-4bdd-41f4-8b63-e9c72d0c8760
+          - id: efb9faea-4b9f-48fc-afa0-04850543a77d
             varType: string
             variable_selector:
             - '1730000000001'
@@ -4939,7 +4998,7 @@ workflow:
             temperature: 0.1
             max_tokens: 16000
         prompt_template:
-        - id: 0ac03858-2395-4987-a080-82472fe4cef8
+        - id: 6c44a4c3-6cc2-4e5a-a4b7-f0fe1185348d
           role: system
           text: |-
             你是期刊稿約整理員。使用者會提供某期刊的稿約、投稿須知或格式範本的擷取文字。請把它整理成一份結構固定、簡潔的「期刊規範摘要」。
@@ -4985,7 +5044,7 @@ workflow:
             }
             </layout_spec>
             ```
-        - id: 6fb9d2ec-7add-4aa2-a9ce-bd2daf893b62
+        - id: f124557d-e57f-4577-b3ba-7e926f62fa4d
           role: user
           text: |-
             【稿約或格式文件的擷取文字】
@@ -5158,7 +5217,7 @@ workflow:
             temperature: 0.1
             max_tokens: 32000
         prompt_template:
-        - id: c6629c0b-ff51-4883-987d-ac754e52e22b
+        - id: b7d22767-9df4-4b79-a2dc-969033e3dc34
           role: system
           text: |-
             你是學術稿件的格式編輯。你的工作只有一項：在**完全不改變內容**的前提下，整理稿件的版面與標點格式。
@@ -5210,7 +5269,7 @@ workflow:
             5. 不要重複提出同一項修改。
 
             程式會逐項檢查：不合格的項目只會被略過，不影響其他項目；因此請寧可保守，不要冒險。
-        - id: 7c5f6ab0-f14d-4ace-ab7e-3350f7a15e95
+        - id: c255cd61-eefb-4e21-94bb-efb8028c21c5
           role: user
           text: |-
             【規範來源】{{#1730000000312.journal_source#}}
@@ -6187,10 +6246,10 @@ workflow:
           completion_params:
             max_tokens: 20000
         prompt_template:
-        - id: 5122bc26-7112-4220-972a-d30b600a7ce9
+        - id: bfc2aa2e-c873-4a8e-914f-c83c2c46e116
           role: system
           text: '{{#1730000000312.final_system#}}'
-        - id: 7387171a-2844-4565-8fa8-90e8bd78986f
+        - id: 2b641cd0-18bf-4d83-b084-4a62e75ca464
           role: user
           text: |-
             {{#1730000000308.verdict_hint#}}
@@ -6249,7 +6308,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: ade038be-fa1f-4710-a652-ae7ba91c7beb
+          - id: 3a72cd80-e153-45d2-9955-8e31ce10f44b
             varType: file
             variable_selector:
             - '1730000000001'
@@ -6340,7 +6399,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 648bd86f-9a6e-4a83-bcb8-9ba497a9f70e
+          - id: f73b1c25-8d97-4519-85ae-273001586c53
             varType: file
             variable_selector:
             - '1730000000001'
@@ -7877,7 +7936,7 @@ workflow:
             temperature: 0.1
             max_tokens: 2000
         prompt_template:
-        - id: 5be36b62-2231-4881-bbc5-edde25362bc0
+        - id: 9340c6e5-d191-4af7-9cb9-fff95b431f6a
           role: system
           text: |-
             你是學術文獻檢索助理。依使用者提供的稿件開頭，產生 3 組 Google Scholar 檢索字串，用來找「與本研究最相關的既有研究」。
@@ -7894,7 +7953,7 @@ workflow:
             · 憲政民主／半總統制 → constitutional democracy, semi-presidentialism；地方自治 → local self-government；社區總體營造／社區發展 → community building, community development, Taiwan
             依論文類型調整：teaching_practice_proposal（教學實踐研究計畫書）→ 檢索重點是「研究主題的核心概念」與「教學場域加方法的既有研究」，第 1 組取研究動機與主題的核心概念，第 2 組取軍校或課程對象加教學方法加成效評估，第 3 組用英文核心概念；cross_cultural（跨文化研究）→ 第 1 組含所比較的文化／群體與研究主題，第 2 組含跨文化理論或測量等值、適應、溝通等概念，第 3 組用 cross-cultural／intercultural／measurement invariance 等英文術語；literature_linguistics（文學與語言研究）→ 第 1 組含作家／作品／語言現象與研究主題，第 2 組含所用理論或分析取徑（如敘事學、話語分析、語用學、語料庫、翻譯研究），第 3 組用對應英文術語；其他類型照一般規則。
             只輸出 JSON，格式：{"queries":["...","...","..."]}，不要任何其他文字。
-        - id: 57825aa1-abd3-4acd-900b-1c66d6179e1e
+        - id: 625eda2d-8aef-4047-b02d-86cc958f3b4c
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -8280,7 +8339,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 742c2d1e-63b1-4964-8b7a-5f923b2f93ce
+          - id: bd602446-5dd9-4c72-a1c5-53f9dc4794c8
             varType: string
             variable_selector:
             - '1730000000001'
@@ -8315,7 +8374,7 @@ workflow:
           completion_params:
             max_tokens: 16000
         prompt_template:
-        - id: d1208b2b-2dec-48b0-bf13-374e3a61d62e
+        - id: afa22d6a-7e6f-4609-ae82-25b41b4ef019
           role: system
           text: |-
             你是教學實踐研究計畫的「對齊診斷員」。你的任務只有一件事：檢查計畫書內部，學理論述與各計畫項次是否環環相扣，並用表格與清單呈現缺口。你不審查優劣、不打分數、不給嚴重度、不改寫任何段落。
@@ -8383,7 +8442,7 @@ workflow:
             Markdown、繁體中文（臺灣慣用語）、不得夾雜簡體字。總長度不超過 4500 字（清單區力求精簡，把篇幅留給矩陣、孤兒項與建議）。章節標題固定為：
             `## 一、理論與項次清單`（含實證研究群 L）、`## 二、對齊矩陣`、`## 三、孤兒項`、`## 四、核心理論的論述深度`、`## 五、深化建議`、`## 六、文獻檢索線索`。
             不要輸出這些章節以外的前言或結語。
-        - id: d83a9ee4-e279-45f9-89be-d9fcc2e0f8f3
+        - id: 4479cea1-15a8-4f1c-90fc-7fb37e7ec491
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -8500,7 +8559,7 @@ workflow:
           completion_params:
             max_tokens: 24000
         prompt_template:
-        - id: 80b3bd23-4d60-46cf-b140-c301a38cb7ec
+        - id: 769e3ecf-fbf0-4eb2-9d0c-1becc5f81808
           role: system
           text: |-
             你是一位資深的學術顧問，熟悉社會科學與教育研究的理論脈絡與研究方法。你的任務不是挑錯，而是幫作者把研究做得更有深度：在理論、觀點、研究主題與研究方法四個面向，提出具體、可行、有取捨說明的建議選項。
@@ -8540,7 +8599,7 @@ workflow:
 
             ### 輸出格式
             Markdown、繁體中文（臺灣慣用語）、不得夾雜簡體字。章節內容總長度不超過 5000 字。不要輸出章節以外的前言或結語。
-        - id: 62635e8d-0e4a-481c-b177-33196109e59c
+        - id: 987f8e5b-f8a4-43fe-aa78-0a239128b49b
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -9050,7 +9109,7 @@ workflow:
           completion_params:
             max_tokens: 12000
         prompt_template:
-        - id: 18e14534-75b5-4a60-afad-aa62860c0527
+        - id: 760ab981-7988-4e76-b8a0-07f1d7502924
           role: system
           text: |-
             你是一位資深學術顧問。你要在已完成修訂的稿件中，找出最值得補強理論的位置，為每個位置提出「理論或概念補強建議」，並從使用者提供的「候選文獻清單」中，挑出最相關的期刊論文作為延伸閱讀。
@@ -9073,7 +9132,7 @@ workflow:
 
             ### 輸出（只輸出 JSON，不要任何其他文字）
             `{"suggestions":[{"anchor":"稿中逐字複製的完整句子","concept":"理論或概念名稱","link":"與稿中哪個發現或論述連結（40 字內）","reason":"為何值得補、可回應什麼疑慮（80 字內）","options":"A：…／B：…（含取捨，120 字內）","refs":[3,12],"verify":"涉及稿外知識，請作者查證"}]}`
-        - id: a02689eb-bb58-4f2c-aa74-f3eb940e0660
+        - id: dac76f0c-8e9b-45e3-bb4c-cbb7248d64a7
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
