@@ -3,14 +3,14 @@ app:
   mode: workflow
   icon: 📝
   icon_background: '#FFEAD5'
-  description: Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註；v1.5.1 修正 Crossref 查詢與建議文獻去重；v1.5.2 中文題名改以 OpenAlex 核對；v1.5.3 修稿輸出上限 32000、書目題名去除 HTML 實體
+  description: Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註；v1.5.1 修正 Crossref 查詢與建議文獻去重；v1.5.2 中文題名改以 OpenAlex 核對；v1.5.3 修稿輸出上限 32000、書目題名去除 HTML 實體；v1.5.4 空位查詢改走 OpenAlex、重試 2 次
   use_icon_as_answer_icon: false
 kind: app
 version: 0.3.1
 workflow:
   conversation_variables: []
   environment_variables:
-  - id: adb79faf-faae-4d05-947f-777a5be5bd26
+  - id: 79e80cf4-b173-476e-afb2-c42ac24b62bb
     name: RUBRIC
     selector:
     - env
@@ -275,7 +275,7 @@ workflow:
       `id` 編碼規則：`{G|P}-R{輪次}-{序號}`，G 代表 Gemini，P 代表 GPT，供修稿者在對照表中逐條回應。
     value_type: string
     description: 審查標準全文（review-rubric.md）
-  - id: 61c42c43-b631-44bb-94b2-6f3e2fea9df2
+  - id: a40a6dff-9e3c-41d1-9956-b854cedebc83
     name: RUBRIC_PROPOSAL
     selector:
     - env
@@ -530,7 +530,7 @@ workflow:
 
     value_type: string
     description: 教學實踐研究計畫書預審標準
-  - id: 02890e76-9127-4057-89cc-a4b978368d86
+  - id: 30f68e84-53bd-49db-a2b5-21914acc0957
     name: SYS_A_JOURNAL
     selector:
     - env
@@ -606,7 +606,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查A系統提示（期刊；含 {{rubric}}、{{paper_type}} 占位符）
-  - id: 14ca5ac4-3fd6-4f29-adcf-e2468f36bae2
+  - id: 26036bbe-f9a0-40fd-9546-b370a7dbdb5f
     name: SYS_B_JOURNAL
     selector:
     - env
@@ -713,7 +713,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查B系統提示（期刊）
-  - id: dd204e7f-1cd9-400a-abda-002aa61f5477
+  - id: da97e4b3-dab3-4512-85eb-c92048e3aea2
     name: SYS_A_PROPOSAL
     selector:
     - env
@@ -810,7 +810,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查A系統提示（計畫書）
-  - id: 7fed11a9-03f4-4d36-a65f-eff50dd31043
+  - id: a836e988-fc17-449f-b1a0-5f1df1f241f0
     name: SYS_B_PROPOSAL
     selector:
     - env
@@ -901,7 +901,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查B系統提示（計畫書）
-  - id: 27eeb255-5ae6-486a-92ee-5c8cdbb65eaf
+  - id: f91f287d-35fd-4180-879b-b5d21325c89d
     name: REVISER_SKILL_PROPOSAL
     selector:
     - env
@@ -1164,7 +1164,7 @@ workflow:
       全部使用繁體中文（臺灣慣用語），不得夾雜簡體字。
     value_type: string
     description: 修稿者 Skill（計畫書版：期刊通則＋計畫書補充規則）
-  - id: 16a5a61f-8033-48bf-8dce-01c94c2a9f84
+  - id: 1a2c5f40-6f5d-4a6f-a65b-0de82e038c68
     name: SYS_FINAL_JOURNAL
     selector:
     - env
@@ -1244,7 +1244,7 @@ workflow:
          - 第六節第一點須建議：將 `max_rounds` 調為 2 以上，讓系統進入修稿與複審。
     value_type: string
     description: 終審系統提示（期刊）
-  - id: e380d1a7-f8f9-4485-a72f-b64f730170c6
+  - id: 97c4541e-8ba1-4e76-b7c7-63b126f3e19a
     name: SYS_FINAL_PROPOSAL
     selector:
     - env
@@ -1326,7 +1326,7 @@ workflow:
       ---
     value_type: string
     description: 終審系統提示（計畫書）
-  - id: 5b19940c-51da-4a50-b178-27f29f998d57
+  - id: c0a3ee33-71f9-4e85-9934-76a39187b801
     name: DEFAULT_FORMAT_PROPOSAL
     selector:
     - env
@@ -1342,7 +1342,7 @@ workflow:
       - 研究倫理：涉及心理資訊（焦慮、情緒、壓力等）、特殊身分研究對象，或實驗組／對照組設計者，應規劃研究倫理審查；其餘須有研究參與者招募與知情同意規劃；學生資料須去識別化。
     value_type: string
     description: 計畫書官方格式摘要（未上傳其他格式檔時使用）
-  - id: 6187d8bb-bd55-4745-89d6-8a8593e2038e
+  - id: 68b71201-a1fb-4823-bed6-4e689f64650c
     name: LAYOUT_PROPOSAL
     selector:
     - env
@@ -1411,7 +1411,7 @@ workflow:
       }
     value_type: string
     description: 計畫書官方版面規格（Word 匯出用）
-  - id: f195dea6-89e4-4e99-9b86-7d63540429ef
+  - id: d3340010-3250-48f6-8dcc-abc89089c1aa
     name: REVISER_SKILL
     selector:
     - env
@@ -1622,7 +1622,7 @@ workflow:
       **本次為自動化模式**，請依「自動化模式的輸出包裝」輸出 `<edits>`（只列要改的句子，不要輸出全文）、`<response_table>`、`<summary_json>`、`<plain_summary>` 四個標籤。
     value_type: string
     description: 修稿者 Skill 本文
-  - id: aa2c444a-707a-4515-aaea-e97739c8dd60
+  - id: e02abeff-fb5f-4cb1-8c3a-83dec90c8561
     name: SERPAPI_KEY
     selector:
     - env
@@ -1630,7 +1630,7 @@ workflow:
     value: ''
     value_type: secret
     description: SerpApi 金鑰（Google Scholar 文獻檢索）。留空則略過文獻檢索，其他流程照常
-  - id: e1a3787a-e12c-4039-bc85-ba193bc3aec1
+  - id: d6d4884b-65b9-4cba-a837-ee357407cd42
     name: DEFAULT_FORMAT_RULES
     selector:
     - env
@@ -2623,7 +2623,7 @@ workflow:
         width: 2000
         height: 640
         break_conditions:
-        - id: e2196f80-384c-4727-b530-d57288bb0a93
+        - id: 6f61afcc-b03e-4eaf-8045-32ad72632884
           varType: string
           variable_selector:
           - '1730000000002'
@@ -2631,98 +2631,98 @@ workflow:
           comparison_operator: is not
           value: continue
         loop_variables:
-        - id: 41cfcfcd-6f51-4d19-87eb-752ae73174dd
+        - id: 78b68f93-65c1-458a-90cc-64512c4d677a
           label: current_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: c8a2640a-92b0-4ba3-afe5-12790e762845
+        - id: 85fb29d1-bd38-4eb5-a353-12d76b80f852
           label: prev_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: 47bebfd0-78fc-4550-9b60-932c55c9082a
+        - id: 8c03f064-2d6a-447b-a937-dd890a09e48f
           label: orig_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: 93065bbe-faaf-4325-a4ca-08f4217f5af9
+        - id: 4a30ce5b-0666-4aae-a95f-2125e88c6c61
           label: round_no
           var_type: number
           value_type: constant
           value: 1
-        - id: 271792a3-cacd-48c7-93f9-d1fc7b9bda37
+        - id: a8c74411-75c0-4447-8839-2aa1e03ac140
           label: decision
           var_type: string
           value_type: constant
           value: continue
-        - id: 06c78e11-cc76-448a-9b93-07c9f1bb4888
+        - id: 90df8c07-c77f-404e-a851-395bdef4dd98
           label: prev_total
           var_type: number
           value_type: constant
           value: 0
-        - id: b44fd764-486d-4f6d-b198-9971344d81d4
+        - id: c128387b-b3c1-4851-936c-7f1cb3c7429b
           label: prev_major
           var_type: number
           value_type: constant
           value: 0
-        - id: 0324090a-5906-4b88-9268-63e5e0a05e01
+        - id: 42e219ea-c7bd-4ab7-a9d2-fd82103bdd99
           label: pass_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: 10e9d7e9-ec17-4141-95e7-8a1dc2f75f16
+        - id: bd7c7f12-0948-42a1-8a13-9ee712f7559d
           label: stall_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: 708297cc-4b56-48dd-8fe1-5f6d6c4afc75
+        - id: 9e44425e-a3bb-41c9-9779-4d0f9a455c0d
           label: fail_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: 360169a4-08f4-4565-8832-41472e7edb99
+        - id: 6a35155b-2db0-4a13-931f-116893c6c674
           label: history
           var_type: string
           value_type: constant
           value: ''
-        - id: 8c7af210-8681-440c-9ca3-3a6808f21ba9
+        - id: 483002a7-aa8c-4104-af10-3f35ae53f541
           label: prior_gemini
           var_type: string
           value_type: constant
           value: '[]'
-        - id: 8fc40a2f-0201-433f-b40a-27015631695d
+        - id: 2af04f74-5fed-4642-b573-db349837eef9
           label: prior_gpt
           var_type: string
           value_type: constant
           value: '[]'
-        - id: 7f3c9efa-f8b3-4831-9d78-3846ffa890a4
+        - id: 11ff2240-2825-4ca3-977d-9ee4d1d3df0a
           label: response_summary
           var_type: string
           value_type: constant
           value: ''
-        - id: 89ac8eaf-5f52-45ce-a458-761266343499
+        - id: aaf9c543-6622-4e8a-b7ed-847d5169b753
           label: last_response_table
           var_type: string
           value_type: constant
           value: ''
-        - id: d402e77e-05e4-4e94-a2f0-451c0802e20f
+        - id: b12387ef-4591-47a7-8b5d-936273a81424
           label: last_marked
           var_type: string
           value_type: constant
           value: ''
-        - id: 3b0489e6-a9fc-47a3-8469-4177c982e173
+        - id: a192cd5b-7f9f-4a51-bddf-8c601d029723
           label: last_flags
           var_type: string
           value_type: constant
           value: ''
-        - id: 850fb897-fbd1-4285-93ab-dbb803feb250
+        - id: 2d54c5c1-4b2a-4c25-8e37-dbd749a2b824
           label: last_reason
           var_type: string
           value_type: constant
@@ -2768,10 +2768,10 @@ workflow:
             temperature: 1.0
             max_tokens: 32000
         prompt_template:
-        - id: 305d38a2-bc81-421f-8949-ddd8a6ac3ff1
+        - id: a98c3199-8c76-49e5-9782-b0c5c9cb1e00
           role: system
           text: '{{#1730000000312.sys_a#}}'
-        - id: 1a6d9f07-7222-461f-85ab-17d62981627e
+        - id: 5a900c3e-6649-4167-b953-faf5998f30df
           role: user
           text: |-
             請審查以下稿件。
@@ -2843,10 +2843,10 @@ workflow:
           completion_params:
             max_tokens: 32000
         prompt_template:
-        - id: 4776d2d9-63c4-44f4-babc-a91ac473b2ba
+        - id: 7c0deea8-14c3-4180-b7aa-9216c409bde6
           role: system
           text: '{{#1730000000312.sys_b#}}'
-        - id: 3c26a6de-c1ca-49c6-85a5-eb2717d1b270
+        - id: dfe1bd4f-d3f1-4cbf-ba8f-f8cfd077113a
           role: user
           text: |-
             請審查以下稿件。
@@ -3686,7 +3686,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: b58ba8e3-e9ce-4fbb-92d1-a4eaacb6f4e4
+          - id: 7028f439-bc96-42e0-b567-936594bab47f
             varType: string
             variable_selector:
             - '1730000000002'
@@ -3726,10 +3726,10 @@ workflow:
           completion_params:
             max_tokens: 32000
         prompt_template:
-        - id: 03633a5c-8f5b-4c44-abc3-99f0019ea48c
+        - id: f3733821-27fa-4f87-b2a2-b392c554cfa1
           role: system
           text: '{{#1730000000312.reviser_system#}}'
-        - id: 0f9fa2a7-4c61-4dc2-874d-fdb90e7a7ecf
+        - id: a98390cd-4265-4cd1-94e8-afb83c19a38c
           role: user
           text: |-
             【輪次】{{#1730000000002.round_no#}}
@@ -4418,7 +4418,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 8795d7ef-dac4-495c-bc5c-685a5503246d
+          - id: ea2d6d25-2f1a-4c9d-aa06-9bca8073d326
             varType: string
             variable_selector:
             - '1730000000001'
@@ -4881,7 +4881,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 92eaeaec-fd9f-42cf-897d-47207aa06562
+          - id: 842d6193-4bdd-41f4-8b63-e9c72d0c8760
             varType: string
             variable_selector:
             - '1730000000001'
@@ -4939,7 +4939,7 @@ workflow:
             temperature: 0.1
             max_tokens: 16000
         prompt_template:
-        - id: d412a3d2-d8d7-4bde-8bb8-cb7f800439de
+        - id: 0ac03858-2395-4987-a080-82472fe4cef8
           role: system
           text: |-
             你是期刊稿約整理員。使用者會提供某期刊的稿約、投稿須知或格式範本的擷取文字。請把它整理成一份結構固定、簡潔的「期刊規範摘要」。
@@ -4985,7 +4985,7 @@ workflow:
             }
             </layout_spec>
             ```
-        - id: a64fbf42-9305-48c9-967f-71e1f0f44a89
+        - id: 6fb9d2ec-7add-4aa2-a9ce-bd2daf893b62
           role: user
           text: |-
             【稿約或格式文件的擷取文字】
@@ -5158,7 +5158,7 @@ workflow:
             temperature: 0.1
             max_tokens: 32000
         prompt_template:
-        - id: e8d11f59-729f-4d08-a2d0-c50d822a6bbd
+        - id: c6629c0b-ff51-4883-987d-ac754e52e22b
           role: system
           text: |-
             你是學術稿件的格式編輯。你的工作只有一項：在**完全不改變內容**的前提下，整理稿件的版面與標點格式。
@@ -5210,7 +5210,7 @@ workflow:
             5. 不要重複提出同一項修改。
 
             程式會逐項檢查：不合格的項目只會被略過，不影響其他項目；因此請寧可保守，不要冒險。
-        - id: 53637408-7e65-4731-a19f-c2fc62deb8a1
+        - id: 7c5f6ab0-f14d-4ace-ab7e-3350f7a15e95
           role: user
           text: |-
             【規範來源】{{#1730000000312.journal_source#}}
@@ -6187,10 +6187,10 @@ workflow:
           completion_params:
             max_tokens: 20000
         prompt_template:
-        - id: 3fb206b2-d1af-4065-9f36-fdbf9f5e7eda
+        - id: 5122bc26-7112-4220-972a-d30b600a7ce9
           role: system
           text: '{{#1730000000312.final_system#}}'
-        - id: 017207fe-1f42-44d1-8663-7df14f1263f3
+        - id: 7387171a-2844-4565-8fa8-90e8bd78986f
           role: user
           text: |-
             {{#1730000000308.verdict_hint#}}
@@ -6249,7 +6249,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 118d6603-9839-4e80-a215-847c367c6100
+          - id: ade038be-fa1f-4710-a652-ae7ba91c7beb
             varType: file
             variable_selector:
             - '1730000000001'
@@ -6340,7 +6340,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: fa466bbd-df62-4527-b41a-9b1b08a8eed5
+          - id: 648bd86f-9a6e-4a83-bcb8-9ba497a9f70e
             varType: file
             variable_selector:
             - '1730000000001'
@@ -7877,7 +7877,7 @@ workflow:
             temperature: 0.1
             max_tokens: 2000
         prompt_template:
-        - id: 6ff7fc1b-453b-4aa9-b0f1-c07b07defcab
+        - id: 5be36b62-2231-4881-bbc5-edde25362bc0
           role: system
           text: |-
             你是學術文獻檢索助理。依使用者提供的稿件開頭，產生 3 組 Google Scholar 檢索字串，用來找「與本研究最相關的既有研究」。
@@ -7894,7 +7894,7 @@ workflow:
             · 憲政民主／半總統制 → constitutional democracy, semi-presidentialism；地方自治 → local self-government；社區總體營造／社區發展 → community building, community development, Taiwan
             依論文類型調整：teaching_practice_proposal（教學實踐研究計畫書）→ 檢索重點是「研究主題的核心概念」與「教學場域加方法的既有研究」，第 1 組取研究動機與主題的核心概念，第 2 組取軍校或課程對象加教學方法加成效評估，第 3 組用英文核心概念；cross_cultural（跨文化研究）→ 第 1 組含所比較的文化／群體與研究主題，第 2 組含跨文化理論或測量等值、適應、溝通等概念，第 3 組用 cross-cultural／intercultural／measurement invariance 等英文術語；literature_linguistics（文學與語言研究）→ 第 1 組含作家／作品／語言現象與研究主題，第 2 組含所用理論或分析取徑（如敘事學、話語分析、語用學、語料庫、翻譯研究），第 3 組用對應英文術語；其他類型照一般規則。
             只輸出 JSON，格式：{"queries":["...","...","..."]}，不要任何其他文字。
-        - id: f2a63814-543c-454e-9050-20f81413cdbc
+        - id: 57825aa1-abd3-4acd-900b-1c66d6179e1e
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -8280,7 +8280,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 7db77c17-ae4c-4b31-9f8f-841f576c60bd
+          - id: 742c2d1e-63b1-4964-8b7a-5f923b2f93ce
             varType: string
             variable_selector:
             - '1730000000001'
@@ -8315,7 +8315,7 @@ workflow:
           completion_params:
             max_tokens: 16000
         prompt_template:
-        - id: 70de5a4c-d593-488c-908c-ec0971ac1f56
+        - id: d1208b2b-2dec-48b0-bf13-374e3a61d62e
           role: system
           text: |-
             你是教學實踐研究計畫的「對齊診斷員」。你的任務只有一件事：檢查計畫書內部，學理論述與各計畫項次是否環環相扣，並用表格與清單呈現缺口。你不審查優劣、不打分數、不給嚴重度、不改寫任何段落。
@@ -8383,7 +8383,7 @@ workflow:
             Markdown、繁體中文（臺灣慣用語）、不得夾雜簡體字。總長度不超過 4500 字（清單區力求精簡，把篇幅留給矩陣、孤兒項與建議）。章節標題固定為：
             `## 一、理論與項次清單`（含實證研究群 L）、`## 二、對齊矩陣`、`## 三、孤兒項`、`## 四、核心理論的論述深度`、`## 五、深化建議`、`## 六、文獻檢索線索`。
             不要輸出這些章節以外的前言或結語。
-        - id: f7777f07-7dfe-4eb1-a221-d332afdf6885
+        - id: d83a9ee4-e279-45f9-89be-d9fcc2e0f8f3
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -8500,7 +8500,7 @@ workflow:
           completion_params:
             max_tokens: 24000
         prompt_template:
-        - id: 4800b0e4-3141-4d21-b8c7-c9bb10a0b004
+        - id: 80b3bd23-4d60-46cf-b140-c301a38cb7ec
           role: system
           text: |-
             你是一位資深的學術顧問，熟悉社會科學與教育研究的理論脈絡與研究方法。你的任務不是挑錯，而是幫作者把研究做得更有深度：在理論、觀點、研究主題與研究方法四個面向，提出具體、可行、有取捨說明的建議選項。
@@ -8540,7 +8540,7 @@ workflow:
 
             ### 輸出格式
             Markdown、繁體中文（臺灣慣用語）、不得夾雜簡體字。章節內容總長度不超過 5000 字。不要輸出章節以外的前言或結語。
-        - id: ad720518-2aae-4d85-b43f-7dda41895db5
+        - id: 62635e8d-0e4a-481c-b177-33196109e59c
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -9050,7 +9050,7 @@ workflow:
           completion_params:
             max_tokens: 12000
         prompt_template:
-        - id: 8c7d4e42-d464-45c4-8cd3-bf0e8985fc83
+        - id: 18e14534-75b5-4a60-afad-aa62860c0527
           role: system
           text: |-
             你是一位資深學術顧問。你要在已完成修訂的稿件中，找出最值得補強理論的位置，為每個位置提出「理論或概念補強建議」，並從使用者提供的「候選文獻清單」中，挑出最相關的期刊論文作為延伸閱讀。
@@ -9073,7 +9073,7 @@ workflow:
 
             ### 輸出（只輸出 JSON，不要任何其他文字）
             `{"suggestions":[{"anchor":"稿中逐字複製的完整句子","concept":"理論或概念名稱","link":"與稿中哪個發現或論述連結（40 字內）","reason":"為何值得補、可回應什麼疑慮（80 字內）","options":"A：…／B：…（含取捨，120 字內）","refs":[3,12],"verify":"涉及稿外知識，請作者查證"}]}`
-        - id: 5a064702-b048-4fc8-97a6-d7487c3f459f
+        - id: a02689eb-bb58-4f2c-aa74-f3eb940e0660
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -9129,7 +9129,7 @@ workflow:
           from urllib.parse import quote
 
           MAX_SUG, MAX_REFS = 8, 6
-          NONE_URL = "https://api.crossref.org/works?rows=0"
+          NONE_URL = "https://api.openalex.org/works?per-page=1&select=id"  # 空位用：不佔 Crossref 的連線額度
           CJK = re.compile(r"[㐀-鿿]")
 
 
@@ -9232,7 +9232,7 @@ workflow:
                               "slots": [slots.index(n) + 1 for n in refs]})
               qs = [_url(cands[n].get("title", "")) for n in slots]
               qs += [NONE_URL] * (MAX_REFS - len(qs))
-              zh = sum(1 for q in qs[:len(slots)] if "openalex" in q)
+              zh = sum(1 for q in qs[:len(slots)] if "openalex" in q and q != NONE_URL)
               skipped = sum(1 for q in qs[:len(slots)] if q == NONE_URL)
               note = ""
               if dropped:
@@ -9319,8 +9319,8 @@ workflow:
           max_write_timeout: 10
         retry_config:
           retry_enabled: true
-          max_retries: 1
-          retry_interval: 1500
+          max_retries: 2
+          retry_interval: 2000
         error_strategy: default-value
         default_value:
         - key: body
@@ -9366,8 +9366,8 @@ workflow:
           max_write_timeout: 10
         retry_config:
           retry_enabled: true
-          max_retries: 1
-          retry_interval: 1500
+          max_retries: 2
+          retry_interval: 2000
         error_strategy: default-value
         default_value:
         - key: body
@@ -9413,8 +9413,8 @@ workflow:
           max_write_timeout: 10
         retry_config:
           retry_enabled: true
-          max_retries: 1
-          retry_interval: 1500
+          max_retries: 2
+          retry_interval: 2000
         error_strategy: default-value
         default_value:
         - key: body
@@ -9460,8 +9460,8 @@ workflow:
           max_write_timeout: 10
         retry_config:
           retry_enabled: true
-          max_retries: 1
-          retry_interval: 1500
+          max_retries: 2
+          retry_interval: 2000
         error_strategy: default-value
         default_value:
         - key: body
@@ -9507,8 +9507,8 @@ workflow:
           max_write_timeout: 10
         retry_config:
           retry_enabled: true
-          max_retries: 1
-          retry_interval: 1500
+          max_retries: 2
+          retry_interval: 2000
         error_strategy: default-value
         default_value:
         - key: body
@@ -9554,8 +9554,8 @@ workflow:
           max_write_timeout: 10
         retry_config:
           retry_enabled: true
-          max_retries: 1
-          retry_interval: 1500
+          max_retries: 2
+          retry_interval: 2000
         error_strategy: default-value
         default_value:
         - key: body

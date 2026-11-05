@@ -8,7 +8,7 @@ import re
 from urllib.parse import quote
 
 MAX_SUG, MAX_REFS = 8, 6
-NONE_URL = "https://api.crossref.org/works?rows=0"
+NONE_URL = "https://api.openalex.org/works?per-page=1&select=id"  # 空位用：不佔 Crossref 的連線額度
 CJK = re.compile(r"[㐀-鿿]")
 
 
@@ -111,7 +111,7 @@ def main(llm_text: str = "", manuscript: str = "", cand_json: str = "") -> dict:
                     "slots": [slots.index(n) + 1 for n in refs]})
     qs = [_url(cands[n].get("title", "")) for n in slots]
     qs += [NONE_URL] * (MAX_REFS - len(qs))
-    zh = sum(1 for q in qs[:len(slots)] if "openalex" in q)
+    zh = sum(1 for q in qs[:len(slots)] if "openalex" in q and q != NONE_URL)
     skipped = sum(1 for q in qs[:len(slots)] if q == NONE_URL)
     note = ""
     if dropped:

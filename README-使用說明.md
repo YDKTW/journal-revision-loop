@@ -174,3 +174,7 @@ python tools/export_docx.py result.json -o 修訂稿.docx --also-doc --also-pdf
 ## v1.5.3
 - ⑥ Claude 修稿輸出上限 16000 → 32000（長稿避免截斷）。
 - 建議書目的題名／刊名先還原 HTML 實體並移除標籤（修正 `&nbsp;` 顯示）。
+
+## v1.5.4
+- 診斷（資料庫查詢）：PARTIAL SUCCESS 的 3 個異常節點是「書目核對 3、5、6」，即未使用的空位。空位原本都對 Crossref 送同一個 `rows=0` 請求，六個節點同時連線，被 Crossref 公共池的連線／速率限制丟棄，出現 `Reached maximum retries`。
+- 修正：空位改查 OpenAlex（輕量請求），Crossref 只收真正要核對的英文題名；HTTP 節點重試 2 次、間隔 2 秒。
