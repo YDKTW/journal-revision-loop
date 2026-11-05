@@ -321,7 +321,7 @@ nodes.append(base_node(IFE, {
 
 # ⑥ Claude 修稿
 nodes.append(llm_node(REV, "⑥ Claude 修稿", "langgenius/anthropic/anthropic", "claude-sonnet-5",
-                      "{{#%s.reviser_system#}}" % CTX, USER_REVISE, 1420, 200, max_tokens=16000, temperature=None))
+                      "{{#%s.reviser_system#}}" % CTX, USER_REVISE, 1420, 200, max_tokens=32000, temperature=None))
 
 # ⑦ 程式碼：解析修訂
 nodes.append(code_node(C2, "⑦ 解析修訂並檢查鎖定區塊", code2, [
@@ -757,7 +757,7 @@ env_vars = [
 
 dsl = {
     "app": {"name": "期刊稿件審查與修訂迴圈", "mode": "workflow", "icon": "📝", "icon_background": "#FFEAD5",
-            "description": "Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註；v1.5.1 修正 Crossref 查詢與建議文獻去重；v1.5.2 中文題名改以 OpenAlex 核對", "use_icon_as_answer_icon": False},
+            "description": "Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註；v1.5.1 修正 Crossref 查詢與建議文獻去重；v1.5.2 中文題名改以 OpenAlex 核對；v1.5.3 修稿輸出上限 32000、書目題名去除 HTML 實體", "use_icon_as_answer_icon": False},
     "kind": "app",
     "version": "0.3.1",
     "workflow": {

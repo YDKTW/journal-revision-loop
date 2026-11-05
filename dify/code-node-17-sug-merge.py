@@ -15,6 +15,12 @@ def _n(s):
     return re.sub(r"[\W_]+", "", (s or "").lower())
 
 
+def _txt(x):
+    # Crossref 題名／刊名可能含 HTML 實體（&nbsp;）與 JATS 標籤：還原並移除
+    x = re.sub(r"<[^>]+>", "", html.unescape(x or "")).replace("\xa0", " ")
+    return re.sub(r"\s+", " ", x).strip()
+
+
 def _from_openalex(w):
     # 轉成與 Crossref 相同的欄位格式
     au = []
@@ -93,8 +99,8 @@ def _fmt_crossref(it):
         year = str(it["issued"]["date-parts"][0][0])
     except Exception:
         pass
-    title = " ".join(it.get("title") or [])
-    cont = " ".join(it.get("container-title") or [])
+    title = _txt(" ".join(it.get("title") or []))
+    cont = _txt(" ".join(it.get("container-title") or []))
     vol, iss, pg, doi = it.get("volume"), it.get("issue"), it.get("page"), it.get("DOI")
     zh = bool(CJK.search(title) or (au and CJK.search(au[0])))
     if zh:

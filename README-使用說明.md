@@ -170,3 +170,7 @@ python tools/export_docx.py result.json -o 修訂稿.docx --also-doc --also-pdf
 - 程式碼節點 16 直接產生完整查詢網址（`u1`–`u6`，已做 URL 編碼）；六個 HTTP 節點的 URL 欄位改為引用該變數，不再用 Dify 的 params 欄位組裝查詢。
 - 程式碼節點 17 同時解析 Crossref 與 OpenAlex 回應；標題相似度 ≥ 0.85 才視為已核對，標示核對來源。
 - 若 HTTP 節點仍出現 `status_code: 0`，請在 Dify 主機測試出站網路與 ssrf_proxy（見 docs 或對話中的步驟）。
+
+## v1.5.3
+- ⑥ Claude 修稿輸出上限 16000 → 32000（長稿避免截斷）。
+- 建議書目的題名／刊名先還原 HTML 實體並移除標籤（修正 `&nbsp;` 顯示）。
