@@ -164,3 +164,9 @@ python tools/export_docx.py result.json -o 修訂稿.docx --also-doc --also-pdf
 - **去重**：標題或 DOI 已出現在稿中參考文獻的候選，不再被選為建議文獻；若 Crossref 核對後才發現稿中已有，該編號只標「稿中已列於參考文獻」，不重複列書目。
 - **書目格式**：英文條目改用 APA 標點（Author, A. B., & Author, C. (年). 篇名. 期刊, 卷(期), 頁. DOI）；全大寫的作者、篇名、刊名改為正常大小寫；Crossref 的 family 欄位夾帶縮寫時自動拆開。中文條目維持中文標點。
 - 若 Dify 仍顯示該節點警告，點開節點看輸出：只要 body 為空，程式就視為「未核對」，不影響結果，可忽略。
+
+## v1.5.2
+- 理論補強的書目核對改為「依題名語言選資料庫」：英文題名 → Crossref；中文題名 → OpenAlex（`title.search`，主標題、最多 30 字）。
+- 程式碼節點 16 直接產生完整查詢網址（`u1`–`u6`，已做 URL 編碼）；六個 HTTP 節點的 URL 欄位改為引用該變數，不再用 Dify 的 params 欄位組裝查詢。
+- 程式碼節點 17 同時解析 Crossref 與 OpenAlex 回應；標題相似度 ≥ 0.85 才視為已核對，標示核對來源。
+- 若 HTTP 節點仍出現 `status_code: 0`，請在 Dify 主機測試出站網路與 ssrf_proxy（見 docs 或對話中的步驟）。

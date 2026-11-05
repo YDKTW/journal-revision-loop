@@ -601,18 +601,18 @@ _sug["data"]["desc"] = "只輸出 JSON；不改正文；失敗不中斷"
 _sug["data"]["error_strategy"] = "default-value"
 _sug["data"]["default_value"] = [{"key": "text", "type": "string", "value": ""}]
 nodes.append(_sug)
-nodes.append(code_node(SUGP, "驗證建議並產生 Crossref 查詢", code16,
+nodes.append(code_node(SUGP, "驗證建議並產生書目查詢網址", code16,
                        [("llm_text", [SUG, "text"]), ("manuscript", [GUARD, "final_manuscript"]), ("cand_json", [CAND, "cand_json"])],
-                       [("sug_json", "string"), ("q1", "string"), ("q2", "string"), ("q3", "string"), ("q4", "string"), ("q5", "string"), ("q6", "string"), ("status", "string")],
+                       [("sug_json", "string")] + [("u%d" % _k, "string") for _k in range(1, 7)] + [("status", "string")],
                        7200, 1200, inner=False))
 
 
 def crossref_node(nid, i, y):
     data = {
-        "type": "http-request", "title": "Crossref 書目核對 %d" % i, "desc": "api.crossref.org；失敗不中斷流程", "selected": False,
-        "method": "get", "url": "https://api.crossref.org/works",
+        "type": "http-request", "title": "書目核對 %d" % i, "desc": "英文→Crossref、中文→OpenAlex；失敗不中斷流程", "selected": False,
+        "method": "get", "url": "{{#%s.u%d#}}" % (SUGP, i),
         "authorization": {"type": "no-auth", "config": None}, "headers": "",
-        "params": "query.bibliographic:{{#%s.q%d#}}\nrows:3\nselect:title,author,issued,container-title,volume,issue,page,DOI" % (SUGP, i),
+        "params": "",
         "body": {"type": "none", "data": []},
         "timeout": {"max_connect_timeout": 10, "max_read_timeout": 30, "max_write_timeout": 10},
         "retry_config": {"retry_enabled": True, "max_retries": 1, "retry_interval": 1500},
@@ -757,7 +757,7 @@ env_vars = [
 
 dsl = {
     "app": {"name": "期刊稿件審查與修訂迴圈", "mode": "workflow", "icon": "📝", "icon_background": "#FFEAD5",
-            "description": "Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註；v1.5.1 修正 Crossref 查詢與建議文獻去重", "use_icon_as_answer_icon": False},
+            "description": "Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註；v1.5.1 修正 Crossref 查詢與建議文獻去重；v1.5.2 中文題名改以 OpenAlex 核對", "use_icon_as_answer_icon": False},
     "kind": "app",
     "version": "0.3.1",
     "workflow": {

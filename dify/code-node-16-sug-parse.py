@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 # Dify「程式碼執行」節點 16：解析並驗證「理論補強標註」LLM 的輸出
 # 輸入：llm_text (String)、manuscript (String 最終稿)、cand_json (String)
-# 輸出：sug_json (String：通過驗證的建議，含 slot 對應)、q1..q6 (String：Crossref 查詢字串)、status (String)
+# 輸出：sug_json (String：通過驗證的建議，含 slot 對應)、u1..u6 (String：完整查詢網址；英文題名→Crossref，中文題名→OpenAlex)、status (String)
 # 驗證：錨點句必須在稿中逐字出現且唯一、不在表格列或 LOCK 區塊內；文獻編號必須存在於候選清單；全部建議最多 8 則、不重複文獻最多 6 筆。
 import json
 import re
+from urllib.parse import quote
 
 MAX_SUG, MAX_REFS = 8, 6
-NONE_Q = "zzqq-none"
+NONE_URL = "https://api.crossref.org/works?rows=0"
 CJK = re.compile(r"[㐀-鿿]")
 
 
@@ -16,13 +17,35 @@ def _n(t):
 
 
 def _clean_q(title):
-    # Crossref 查詢字串：含中日韓字元者不送（Crossref 涵蓋有限，且曾造成 HTTP 節點 Unknown error）；其餘移除會干擾參數解析的符號
+    # 英文題名：移除會干擾參數解析的符號後送 Crossref
     t = re.sub(r"\s+", " ", title or "").strip()
-    if not t or len(CJK.findall(t)) / max(len(t), 1) > 0.15:
-        return NONE_Q
     t = re.sub(r"[#&?%\\\"“”‘’<>{}|^`\[\]]", " ", t)
-    t = re.sub(r"\s+", " ", t).strip(" .,:;")
-    return t[:150] or NONE_Q
+    return re.sub(r"\s+", " ", t).strip(" .,:;")[:150]
+
+
+def _zh_q(title):
+    # 中文題名：取主標題（去掉《》與副標題），移除全形/半形標點與逗號（OpenAlex filter 以逗號分隔），最多 30 字
+    t = re.sub(r"[《》「」『』]", "", title or "")
+    t = re.split(r"[：:—─－–\-—（(]", t)[0]
+    t = re.sub(r"[\W_]+", " ", t).strip()
+    return t[:30].strip()
+
+
+def _url(title):
+    t = re.sub(r"\s+", " ", title or "").strip()
+    if not t:
+        return NONE_URL
+    if len(CJK.findall(t)) / max(len(t), 1) > 0.15:
+        q = _zh_q(t)
+        if len(q) < 4:
+            return NONE_URL
+        return ("https://api.openalex.org/works?filter=title.search:" + quote(q, safe="") +
+                "&per-page=3&select=id,title,doi,publication_year,authorships,primary_location,biblio")
+    q = _clean_q(t)
+    if not q:
+        return NONE_URL
+    return ("https://api.crossref.org/works?query.bibliographic=" + quote(q, safe="") +
+            "&rows=3&select=title,author,issued,container-title,volume,issue,page,DOI")
 
 
 def _lock_spans(t):
@@ -30,7 +53,7 @@ def _lock_spans(t):
 
 
 def main(llm_text: str = "", manuscript: str = "", cand_json: str = "") -> dict:
-    empty = {"sug_json": "[]", "q1": NONE_Q, "q2": NONE_Q, "q3": NONE_Q, "q4": NONE_Q, "q5": NONE_Q, "q6": NONE_Q}
+    empty = dict({"sug_json": "[]"}, **{"u%d" % i: NONE_URL for i in range(1, 7)})
     t = re.sub(r"<think>.*?</think>", "", llm_text or "", flags=re.S).strip()
     t = re.sub(r"^```[a-zA-Z]*\s*|\s*```$", "", t).strip()
     m = re.search(r"\{.*\}", t, re.S)
@@ -86,19 +109,19 @@ def main(llm_text: str = "", manuscript: str = "", cand_json: str = "") -> dict:
                     "link": str(s.get("link") or "")[:300], "reason": str(s.get("reason") or "")[:400],
                     "options": str(s.get("options") or "")[:400], "verify": str(s.get("verify") or "")[:200],
                     "slots": [slots.index(n) + 1 for n in refs]})
-    qs = []
-    for n in slots:
-        c = cands[n]
-        qs.append(_clean_q(c.get("title", "")))
-    qs += [NONE_Q] * (MAX_REFS - len(qs))
-    skipped = sum(1 for q in qs[:len(slots)] if q == NONE_Q)
+    qs = [_url(cands[n].get("title", "")) for n in slots]
+    qs += [NONE_URL] * (MAX_REFS - len(qs))
+    zh = sum(1 for q in qs[:len(slots)] if "openalex" in q)
+    skipped = sum(1 for q in qs[:len(slots)] if q == NONE_URL)
     note = ""
     if dropped:
         note += "；%d 則因錨點句無法定位而略過" % dropped
+    if zh:
+        note += "；%d 筆中文題名改以 OpenAlex 核對" % zh
     if skipped:
-        note += "；%d 筆為中文或不宜查詢，未送 Crossref" % skipped
+        note += "；%d 筆題名過短或無法查詢，未核對" % skipped
     res = {"sug_json": json.dumps({"suggestions": out, "slot_cands": [cands[n] for n in slots]}, ensure_ascii=False),
            "status": "通過驗證 %d 則建議、%d 筆候選文獻%s" % (len(out), len(slots), note)}
     for i in range(MAX_REFS):
-        res["q%d" % (i + 1)] = qs[i]
+        res["u%d" % (i + 1)] = qs[i]
     return res

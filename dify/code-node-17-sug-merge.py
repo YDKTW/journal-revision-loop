@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # Dify「程式碼執行」節點 17：把理論補強建議以紅字區塊插入稿件，並附紅字建議參考文獻
-# 輸入：manuscript (String)、sug_json (String)、c1..c6 (String：Crossref 回應 body)
+# 輸入：manuscript (String)、sug_json (String)、c1..c6 (String：Crossref 或 OpenAlex 回應 body)
 # 輸出：annotated_manuscript (String，標記版)、annotated_html (String，紅字 HTML)、suggestion_report (String：給人看的摘要)
-# 書目原則：只使用檢索結果與 Crossref 回傳的欄位，不補寫任何欄位；Crossref 標題相似度 >= 0.85 才視為已核對。
+# 書目原則：只使用檢索結果與 Crossref 回傳的欄位，不補寫任何欄位；Crossref／OpenAlex 標題相似度 >= 0.85 才視為已核對。
 import difflib
 import html
 import json
@@ -15,19 +15,45 @@ def _n(s):
     return re.sub(r"[\W_]+", "", (s or "").lower())
 
 
+def _from_openalex(w):
+    # 轉成與 Crossref 相同的欄位格式
+    au = []
+    for x in w.get("authorships") or []:
+        dn = ((x.get("author") or {}).get("display_name") or "").strip()
+        dn = re.split(r"\s+(?=[A-Z][a-z]+\s+[A-Z])", dn)[0] if CJK.search(dn) else dn
+        if not dn:
+            continue
+        if CJK.search(dn):
+            au.append({"family": re.sub(r"\s+", "", dn.split(" ")[0]), "given": ""})
+        else:
+            parts = dn.split()
+            au.append({"family": parts[-1], "given": " ".join(parts[:-1])})
+    bi, src = w.get("biblio") or {}, ((w.get("primary_location") or {}).get("source") or {})
+    pg = "-".join(str(x) for x in (bi.get("first_page"), bi.get("last_page")) if x)
+    doi = re.sub(r"^https?://doi.org/", "", w.get("doi") or "")
+    return {"title": [w.get("title") or ""], "author": au, "issued": {"date-parts": [[w.get("publication_year")]]},
+            "container-title": [src.get("display_name")] if src.get("display_name") else [], "volume": bi.get("volume"),
+            "issue": bi.get("issue"), "page": pg or None, "DOI": doi or None}
+
+
 def _crossref_match(body, title):
     try:
         d = json.loads(body or "")
-        items = d["message"]["items"]
     except Exception:
-        return None
+        return None, ""
+    if isinstance(d.get("message"), dict):
+        items, src = d["message"].get("items") or [], "Crossref"
+    elif isinstance(d.get("results"), list):
+        items, src = [_from_openalex(w) for w in d["results"]], "OpenAlex"
+    else:
+        return None, ""
     best, score = None, 0.0
     for it in items:
         tt = " ".join(it.get("title") or [])
         r = difflib.SequenceMatcher(None, _n(tt), _n(title)).ratio()
         if r > score:
             best, score = it, r
-    return best if best is not None and score >= 0.85 else None
+    return (best, src) if best is not None and score >= 0.85 else (None, "")
 
 
 def _name(a):
@@ -107,16 +133,16 @@ def main(manuscript: str = "", sug_json: str = "", c1: str = "", c2: str = "", c
     refs, verified = [], 0
     msn = _n(manuscript)
     for i, c in enumerate(cands):
-        it = _crossref_match(bodies[i], c.get("title", ""))
+        it, src = _crossref_match(bodies[i], c.get("title", ""))
         if it is not None:
             doi = (it.get("DOI") or "").lower()
             if (doi and doi in manuscript.lower()) or (len(_n(c.get("title"))) >= 12 and _n(c.get("title")) in msn):
                 refs.append("R%d　（此文獻稿中已列於參考文獻，毋須重複新增；上列建議可直接對照稿中既有條目）" % (i + 1))
                 continue
             verified += 1
-            refs.append("R%d　%s　（已以 Crossref 核對書目欄位；仍請對照原文）" % (i + 1, _fmt_crossref(it)))
+            refs.append("R%d　%s　（已以 %s 核對書目欄位；仍請對照原文）" % (i + 1, _fmt_crossref(it), src))
         else:
-            refs.append("R%d　《%s》｜%s｜%s　（僅依 Google Scholar 檢索結果，書目欄位不完整、未經 Crossref 核對，請作者逐項補全並對照原文）" %
+            refs.append("R%d　《%s》｜%s｜%s　（僅依 Google Scholar 檢索結果，書目欄位不完整、未經 Crossref／OpenAlex 核對，請作者逐項補全並對照原文）" %
                         (i + 1, (c.get("title", "") or "").strip("《》 "), c.get("pub") or "出處不明", c.get("link") or "無連結"))
     lines = manuscript.split("\n")
     inserts = {}
@@ -150,5 +176,5 @@ def main(manuscript: str = "", sug_json: str = "", c1: str = "", c2: str = "", c
     ann = "\n".join(out)
     body = "".join(('<p style="color:#c00000">%s</p>' if r else "<p>%s</p>") % html.escape(l) if l.strip() else "" for l, r in zip(out, red))
     page = "<html><head><meta charset='utf-8'><title>標註版（理論補強建議）</title></head><body style='font-family:serif'>%s</body></html>" % body
-    rep = "理論補強建議 %d 則（%d 則已插入稿件）；建議文獻 %d 筆，其中 %d 筆已以 Crossref 核對書目。" % (len(sugs), len(inserts), len(refs), verified)
+    rep = "理論補強建議 %d 則（%d 則已插入稿件）；建議文獻 %d 筆，其中 %d 筆已以 Crossref／OpenAlex 核對書目。" % (len(sugs), len(inserts), len(refs), verified)
     return {"annotated_manuscript": ann, "annotated_html": page, "suggestion_report": rep}

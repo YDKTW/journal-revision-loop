@@ -3,14 +3,14 @@ app:
   mode: workflow
   icon: 📝
   icon_background: '#FFEAD5'
-  description: Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註；v1.5.1 修正 Crossref 查詢與建議文獻去重
+  description: Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註；v1.5.1 修正 Crossref 查詢與建議文獻去重；v1.5.2 中文題名改以 OpenAlex 核對
   use_icon_as_answer_icon: false
 kind: app
 version: 0.3.1
 workflow:
   conversation_variables: []
   environment_variables:
-  - id: f94837c3-f820-4ff4-b034-54ee3c4c8869
+  - id: 0dbe8aee-0297-46b4-b1e2-d010a42f5912
     name: RUBRIC
     selector:
     - env
@@ -275,7 +275,7 @@ workflow:
       `id` 編碼規則：`{G|P}-R{輪次}-{序號}`，G 代表 Gemini，P 代表 GPT，供修稿者在對照表中逐條回應。
     value_type: string
     description: 審查標準全文（review-rubric.md）
-  - id: 722c26f8-ec47-49a4-bcf2-2db2a925e2a6
+  - id: 511deb45-6413-4cc1-b6f6-2fdae7392a5f
     name: RUBRIC_PROPOSAL
     selector:
     - env
@@ -530,7 +530,7 @@ workflow:
 
     value_type: string
     description: 教學實踐研究計畫書預審標準
-  - id: a0f2ef61-3097-449a-8cfc-fad8135d8a81
+  - id: e946b5d0-f5bc-4741-a673-b136ffd656b3
     name: SYS_A_JOURNAL
     selector:
     - env
@@ -606,7 +606,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查A系統提示（期刊；含 {{rubric}}、{{paper_type}} 占位符）
-  - id: 53a3648b-608b-4564-a395-98a05890d8ed
+  - id: e490123c-c625-4fd7-ab19-5d8e39bddd7d
     name: SYS_B_JOURNAL
     selector:
     - env
@@ -713,7 +713,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查B系統提示（期刊）
-  - id: 32762828-6198-4013-8959-874f22cfccad
+  - id: fea0a738-3c5f-44a5-bacc-aac827955075
     name: SYS_A_PROPOSAL
     selector:
     - env
@@ -810,7 +810,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查A系統提示（計畫書）
-  - id: 0b24ca1d-c6c7-43e2-9e31-a74115dccfc1
+  - id: bfdb9a25-2bd8-4608-bb37-491913e42205
     name: SYS_B_PROPOSAL
     selector:
     - env
@@ -901,7 +901,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查B系統提示（計畫書）
-  - id: 2d70b470-9c79-48f6-9d3e-2d0dce60af77
+  - id: c26bf0d9-3e4a-4e9a-b7f9-77ab1af1b93e
     name: REVISER_SKILL_PROPOSAL
     selector:
     - env
@@ -1164,7 +1164,7 @@ workflow:
       全部使用繁體中文（臺灣慣用語），不得夾雜簡體字。
     value_type: string
     description: 修稿者 Skill（計畫書版：期刊通則＋計畫書補充規則）
-  - id: 3bd7d804-0637-4317-b502-74e58d0ef6c0
+  - id: d1b5e455-3f94-4146-ab31-332a78f266e9
     name: SYS_FINAL_JOURNAL
     selector:
     - env
@@ -1244,7 +1244,7 @@ workflow:
          - 第六節第一點須建議：將 `max_rounds` 調為 2 以上，讓系統進入修稿與複審。
     value_type: string
     description: 終審系統提示（期刊）
-  - id: f4f853f1-cf34-4199-920d-cc7e6482bfd3
+  - id: 60cbbeaf-f090-4df3-bce3-43291e620675
     name: SYS_FINAL_PROPOSAL
     selector:
     - env
@@ -1326,7 +1326,7 @@ workflow:
       ---
     value_type: string
     description: 終審系統提示（計畫書）
-  - id: 899e0dac-057e-47b4-aa2c-1f6ea95d6d89
+  - id: ffaf7fe4-eb8d-4af9-939a-e1d1300678ef
     name: DEFAULT_FORMAT_PROPOSAL
     selector:
     - env
@@ -1342,7 +1342,7 @@ workflow:
       - 研究倫理：涉及心理資訊（焦慮、情緒、壓力等）、特殊身分研究對象，或實驗組／對照組設計者，應規劃研究倫理審查；其餘須有研究參與者招募與知情同意規劃；學生資料須去識別化。
     value_type: string
     description: 計畫書官方格式摘要（未上傳其他格式檔時使用）
-  - id: d4e0049d-6368-436b-9039-843449848c6c
+  - id: 95eacd31-7772-40dd-b45c-14fb1c8ec1cf
     name: LAYOUT_PROPOSAL
     selector:
     - env
@@ -1411,7 +1411,7 @@ workflow:
       }
     value_type: string
     description: 計畫書官方版面規格（Word 匯出用）
-  - id: 52a6aede-284f-4d27-8394-d666bdddbbda
+  - id: dd683f59-c1e5-43c4-bf8d-844454da3154
     name: REVISER_SKILL
     selector:
     - env
@@ -1622,7 +1622,7 @@ workflow:
       **本次為自動化模式**，請依「自動化模式的輸出包裝」輸出 `<edits>`（只列要改的句子，不要輸出全文）、`<response_table>`、`<summary_json>`、`<plain_summary>` 四個標籤。
     value_type: string
     description: 修稿者 Skill 本文
-  - id: d5be8ed9-ec9e-459b-a5ff-d39e55a12758
+  - id: 2b542932-8a87-407d-97a8-32403eafea70
     name: SERPAPI_KEY
     selector:
     - env
@@ -1630,7 +1630,7 @@ workflow:
     value: ''
     value_type: secret
     description: SerpApi 金鑰（Google Scholar 文獻檢索）。留空則略過文獻檢索，其他流程照常
-  - id: 48f9c8b1-f2ef-45da-bca7-39161810c58f
+  - id: ac236a42-dd19-4596-8f04-7fd191497dd4
     name: DEFAULT_FORMAT_RULES
     selector:
     - env
@@ -2623,7 +2623,7 @@ workflow:
         width: 2000
         height: 640
         break_conditions:
-        - id: df83cafd-26ac-4b4d-af44-42676b6efd22
+        - id: 2ed9f10f-4217-441b-a687-0434ec7ae33e
           varType: string
           variable_selector:
           - '1730000000002'
@@ -2631,98 +2631,98 @@ workflow:
           comparison_operator: is not
           value: continue
         loop_variables:
-        - id: 00188952-29bb-42ad-ae82-7b26c02c57ba
+        - id: 8c7d13ea-5be0-4dff-bc30-d8c84cdf4f65
           label: current_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: 04b149e1-f9ca-4706-8f17-ce2cf1a7e7b1
+        - id: c6ad41a8-6ca0-4cc0-a86d-40709ad0899a
           label: prev_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: 401d9c08-4a8d-4cd1-9391-09ec47057761
+        - id: 644ebc82-4c0c-4245-862d-ade9ee1a7bf4
           label: orig_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: 4dfbc80e-b128-46d0-a7fa-7553b0cab4f4
+        - id: b6cfa15d-b103-4e87-8ec2-d5367bed525d
           label: round_no
           var_type: number
           value_type: constant
           value: 1
-        - id: dcd57164-1088-48fb-8213-8b14b270d8ce
+        - id: 5e73bdf7-f17f-4c81-997d-064074fac66a
           label: decision
           var_type: string
           value_type: constant
           value: continue
-        - id: 267dcc7f-6ac7-4574-b88b-1c48e33beec9
+        - id: 2e79dbaa-95d8-4061-a2de-822814959356
           label: prev_total
           var_type: number
           value_type: constant
           value: 0
-        - id: 14b02da1-1453-49b9-8a87-000963eacc7a
+        - id: 35a29ef1-7fa4-42ce-b677-54c55ab9956f
           label: prev_major
           var_type: number
           value_type: constant
           value: 0
-        - id: 84bd127a-a5fb-4221-9d40-d4f6baeac0bb
+        - id: 9afe8e65-13ab-45d0-9fb4-2054540a705c
           label: pass_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: 6b2c2063-3603-4002-91cf-550bf89641d6
+        - id: 721b9474-577f-4d8a-a3da-fe2eab378bd1
           label: stall_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: 7c91ede9-9c32-4a2d-82d6-5979f16a5449
+        - id: 2ca5f483-c0d9-4892-9e32-cbbc38a7f894
           label: fail_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: 57a8772e-a272-405f-b28b-c40ffff60c81
+        - id: cd0a15b4-4f9e-41eb-a726-5a04a75af7fa
           label: history
           var_type: string
           value_type: constant
           value: ''
-        - id: fbd52b45-ec0a-40b8-b611-3bba1541e999
+        - id: 97ad142d-203e-4997-b1fb-02ef078c7790
           label: prior_gemini
           var_type: string
           value_type: constant
           value: '[]'
-        - id: 049dc3b0-556f-4ca1-8d71-e23d2c177147
+        - id: 774a474a-410c-4ec5-a949-f116cb0f920e
           label: prior_gpt
           var_type: string
           value_type: constant
           value: '[]'
-        - id: 5b2ffb92-9266-46d1-8e2d-6fcfacdc2f26
+        - id: 67a78a06-a7d6-47d9-9d7a-5384d3b0969f
           label: response_summary
           var_type: string
           value_type: constant
           value: ''
-        - id: 1636f45e-ab77-40a3-833c-0787b572ea9a
+        - id: 05e23929-1366-448c-a090-8908e6feb915
           label: last_response_table
           var_type: string
           value_type: constant
           value: ''
-        - id: f4e8b909-68e9-4a3e-8fda-586167b2b552
+        - id: 60f0134b-0433-46f9-a4da-48296a29ce3a
           label: last_marked
           var_type: string
           value_type: constant
           value: ''
-        - id: 18e8f8c8-0945-477b-8b60-eadbaddd4247
+        - id: e0fd3e64-168f-4a4d-91c7-1adb0c71a694
           label: last_flags
           var_type: string
           value_type: constant
           value: ''
-        - id: 364ba3a4-73fe-4e07-9d61-b44b0bfa5240
+        - id: 87057424-462f-4fe3-8f42-f492658b77f3
           label: last_reason
           var_type: string
           value_type: constant
@@ -2768,10 +2768,10 @@ workflow:
             temperature: 1.0
             max_tokens: 32000
         prompt_template:
-        - id: 42179dbc-1b4a-4f9a-9975-f485ea45308f
+        - id: 53e44f43-c101-4e86-a43f-3c3630ad2530
           role: system
           text: '{{#1730000000312.sys_a#}}'
-        - id: 2fbcd919-2767-49dd-89d8-cd9efd86e14b
+        - id: 0ee414a6-257b-4e45-8289-594abe0c7b50
           role: user
           text: |-
             請審查以下稿件。
@@ -2843,10 +2843,10 @@ workflow:
           completion_params:
             max_tokens: 32000
         prompt_template:
-        - id: 707e7f38-fbf5-4e72-a67a-6f01debe01df
+        - id: 3d64feee-30da-4334-8818-01a1d2bf51d7
           role: system
           text: '{{#1730000000312.sys_b#}}'
-        - id: 26a98fda-b1ad-4a57-8862-e541e336f69d
+        - id: 340c7859-1c37-486e-835f-ed7113b8aafa
           role: user
           text: |-
             請審查以下稿件。
@@ -3686,7 +3686,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 7aac28e1-9050-4909-b8dc-e889cf0a2c1c
+          - id: 7387c298-d56f-4e0f-a984-2b13ce7eb5b8
             varType: string
             variable_selector:
             - '1730000000002'
@@ -3726,10 +3726,10 @@ workflow:
           completion_params:
             max_tokens: 16000
         prompt_template:
-        - id: fe96e80b-fa39-4376-87ea-895d146763d6
+        - id: f1220030-206a-4d8a-8981-805da6d7477a
           role: system
           text: '{{#1730000000312.reviser_system#}}'
-        - id: b53bbc23-f90d-41b3-bfc7-d872c03b92c9
+        - id: 5f0c0ec5-4245-40df-acfe-849acce3be8e
           role: user
           text: |-
             【輪次】{{#1730000000002.round_no#}}
@@ -4418,7 +4418,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 4d8ae40a-98fb-47c9-a473-bbdb96f86bc7
+          - id: 0dd15d7b-f9cc-4bce-87ab-e1575ce0e9a1
             varType: string
             variable_selector:
             - '1730000000001'
@@ -4881,7 +4881,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 42ec0c01-4ac9-4539-9d08-c3ade8202d01
+          - id: fd0500ab-3bcf-4560-b57d-ddd4634ae967
             varType: string
             variable_selector:
             - '1730000000001'
@@ -4939,7 +4939,7 @@ workflow:
             temperature: 0.1
             max_tokens: 16000
         prompt_template:
-        - id: 9d955b39-5f7b-457b-b798-57d6f3169d6a
+        - id: dae0a664-1a3c-4c28-8057-cdcb83dcb0f4
           role: system
           text: |-
             你是期刊稿約整理員。使用者會提供某期刊的稿約、投稿須知或格式範本的擷取文字。請把它整理成一份結構固定、簡潔的「期刊規範摘要」。
@@ -4985,7 +4985,7 @@ workflow:
             }
             </layout_spec>
             ```
-        - id: ec20ed50-c3ef-4f7f-ae86-8b34efe84c4d
+        - id: d168fe55-02e0-42a7-87d4-411567c6e5f7
           role: user
           text: |-
             【稿約或格式文件的擷取文字】
@@ -5158,7 +5158,7 @@ workflow:
             temperature: 0.1
             max_tokens: 32000
         prompt_template:
-        - id: 7f30e6c5-f153-485c-93b3-044c194753e8
+        - id: 2a1edcc5-c6c0-4ac8-b7bc-d247c0d39e6b
           role: system
           text: |-
             你是學術稿件的格式編輯。你的工作只有一項：在**完全不改變內容**的前提下，整理稿件的版面與標點格式。
@@ -5210,7 +5210,7 @@ workflow:
             5. 不要重複提出同一項修改。
 
             程式會逐項檢查：不合格的項目只會被略過，不影響其他項目；因此請寧可保守，不要冒險。
-        - id: 643c05b1-3ed8-4732-8d93-5c984d9b1d69
+        - id: 4edcbab4-9954-420f-8d3f-481eedbfe942
           role: user
           text: |-
             【規範來源】{{#1730000000312.journal_source#}}
@@ -6187,10 +6187,10 @@ workflow:
           completion_params:
             max_tokens: 20000
         prompt_template:
-        - id: 32632bb1-e9f2-41a3-a739-d30a68002dfd
+        - id: f4f595c4-e307-4565-a88c-d1608b4378ce
           role: system
           text: '{{#1730000000312.final_system#}}'
-        - id: f10c4410-fc8e-4e06-b058-92610df74b2b
+        - id: 7aaaf70a-2189-4d3c-8390-61bbea325bd4
           role: user
           text: |-
             {{#1730000000308.verdict_hint#}}
@@ -6249,7 +6249,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 6d386196-d981-4541-aa89-f5cd56831281
+          - id: 38057f35-cc5e-427d-bfd1-443eacc65ce6
             varType: file
             variable_selector:
             - '1730000000001'
@@ -6340,7 +6340,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: a0a711e7-d55e-4d68-9ed9-a01b539f17fa
+          - id: 7aab8116-5ab2-4def-9daf-ccc130b0308d
             varType: file
             variable_selector:
             - '1730000000001'
@@ -7877,7 +7877,7 @@ workflow:
             temperature: 0.1
             max_tokens: 2000
         prompt_template:
-        - id: 0cfadbd7-76af-4c06-875f-7909166c85c6
+        - id: 045c117c-086b-4473-a453-5e38c247a187
           role: system
           text: |-
             你是學術文獻檢索助理。依使用者提供的稿件開頭，產生 3 組 Google Scholar 檢索字串，用來找「與本研究最相關的既有研究」。
@@ -7894,7 +7894,7 @@ workflow:
             · 憲政民主／半總統制 → constitutional democracy, semi-presidentialism；地方自治 → local self-government；社區總體營造／社區發展 → community building, community development, Taiwan
             依論文類型調整：teaching_practice_proposal（教學實踐研究計畫書）→ 檢索重點是「研究主題的核心概念」與「教學場域加方法的既有研究」，第 1 組取研究動機與主題的核心概念，第 2 組取軍校或課程對象加教學方法加成效評估，第 3 組用英文核心概念；cross_cultural（跨文化研究）→ 第 1 組含所比較的文化／群體與研究主題，第 2 組含跨文化理論或測量等值、適應、溝通等概念，第 3 組用 cross-cultural／intercultural／measurement invariance 等英文術語；literature_linguistics（文學與語言研究）→ 第 1 組含作家／作品／語言現象與研究主題，第 2 組含所用理論或分析取徑（如敘事學、話語分析、語用學、語料庫、翻譯研究），第 3 組用對應英文術語；其他類型照一般規則。
             只輸出 JSON，格式：{"queries":["...","...","..."]}，不要任何其他文字。
-        - id: 628f6ea6-defa-49c5-8bea-bcdf078469f8
+        - id: 3cf329bd-b784-45bb-b4ce-76f2481c29b5
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -8280,7 +8280,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: dd25746c-567c-43cb-ab0f-05ebb12bfaae
+          - id: d7023040-a02e-4266-95f1-e69bb69ae512
             varType: string
             variable_selector:
             - '1730000000001'
@@ -8315,7 +8315,7 @@ workflow:
           completion_params:
             max_tokens: 16000
         prompt_template:
-        - id: 20f2e037-bcf7-4f0e-8b92-ae0d78186047
+        - id: 3b16804b-dab6-4178-8fb4-1d7d7d465481
           role: system
           text: |-
             你是教學實踐研究計畫的「對齊診斷員」。你的任務只有一件事：檢查計畫書內部，學理論述與各計畫項次是否環環相扣，並用表格與清單呈現缺口。你不審查優劣、不打分數、不給嚴重度、不改寫任何段落。
@@ -8383,7 +8383,7 @@ workflow:
             Markdown、繁體中文（臺灣慣用語）、不得夾雜簡體字。總長度不超過 4500 字（清單區力求精簡，把篇幅留給矩陣、孤兒項與建議）。章節標題固定為：
             `## 一、理論與項次清單`（含實證研究群 L）、`## 二、對齊矩陣`、`## 三、孤兒項`、`## 四、核心理論的論述深度`、`## 五、深化建議`、`## 六、文獻檢索線索`。
             不要輸出這些章節以外的前言或結語。
-        - id: 06443ab8-716d-4c47-93ce-91ae6400b349
+        - id: e5131963-0bde-4ba2-9ce6-f946321e630f
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -8500,7 +8500,7 @@ workflow:
           completion_params:
             max_tokens: 24000
         prompt_template:
-        - id: bb024548-4bee-4b54-aff2-73edc2d69e0e
+        - id: ed883f75-6b84-44d1-84e4-11f200c9a242
           role: system
           text: |-
             你是一位資深的學術顧問，熟悉社會科學與教育研究的理論脈絡與研究方法。你的任務不是挑錯，而是幫作者把研究做得更有深度：在理論、觀點、研究主題與研究方法四個面向，提出具體、可行、有取捨說明的建議選項。
@@ -8540,7 +8540,7 @@ workflow:
 
             ### 輸出格式
             Markdown、繁體中文（臺灣慣用語）、不得夾雜簡體字。章節內容總長度不超過 5000 字。不要輸出章節以外的前言或結語。
-        - id: c3370e09-0b74-42b5-ae35-dd15454c43cd
+        - id: 10a130d6-bdb5-4512-ae50-25492eec9c76
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -9050,7 +9050,7 @@ workflow:
           completion_params:
             max_tokens: 12000
         prompt_template:
-        - id: 0efc1300-39cb-4ab6-acac-17d9806a362e
+        - id: de75f850-4225-49ca-aba7-796eb729a0d8
           role: system
           text: |-
             你是一位資深學術顧問。你要在已完成修訂的稿件中，找出最值得補強理論的位置，為每個位置提出「理論或概念補強建議」，並從使用者提供的「候選文獻清單」中，挑出最相關的期刊論文作為延伸閱讀。
@@ -9073,7 +9073,7 @@ workflow:
 
             ### 輸出（只輸出 JSON，不要任何其他文字）
             `{"suggestions":[{"anchor":"稿中逐字複製的完整句子","concept":"理論或概念名稱","link":"與稿中哪個發現或論述連結（40 字內）","reason":"為何值得補、可回應什麼疑慮（80 字內）","options":"A：…／B：…（含取捨，120 字內）","refs":[3,12],"verify":"涉及稿外知識，請作者查證"}]}`
-        - id: 1b665a3f-1afa-4e2a-8cc2-3178f5b92b19
+        - id: e8c6abc7-805a-47a2-bd1f-f6c0c1af5a2f
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -9115,20 +9115,21 @@ workflow:
       type: custom
       data:
         type: code
-        title: 驗證建議並產生 Crossref 查詢
+        title: 驗證建議並產生書目查詢網址
         desc: ''
         selected: false
         code: |
           # -*- coding: utf-8 -*-
           # Dify「程式碼執行」節點 16：解析並驗證「理論補強標註」LLM 的輸出
           # 輸入：llm_text (String)、manuscript (String 最終稿)、cand_json (String)
-          # 輸出：sug_json (String：通過驗證的建議，含 slot 對應)、q1..q6 (String：Crossref 查詢字串)、status (String)
+          # 輸出：sug_json (String：通過驗證的建議，含 slot 對應)、u1..u6 (String：完整查詢網址；英文題名→Crossref，中文題名→OpenAlex)、status (String)
           # 驗證：錨點句必須在稿中逐字出現且唯一、不在表格列或 LOCK 區塊內；文獻編號必須存在於候選清單；全部建議最多 8 則、不重複文獻最多 6 筆。
           import json
           import re
+          from urllib.parse import quote
 
           MAX_SUG, MAX_REFS = 8, 6
-          NONE_Q = "zzqq-none"
+          NONE_URL = "https://api.crossref.org/works?rows=0"
           CJK = re.compile(r"[㐀-鿿]")
 
 
@@ -9137,13 +9138,35 @@ workflow:
 
 
           def _clean_q(title):
-              # Crossref 查詢字串：含中日韓字元者不送（Crossref 涵蓋有限，且曾造成 HTTP 節點 Unknown error）；其餘移除會干擾參數解析的符號
+              # 英文題名：移除會干擾參數解析的符號後送 Crossref
               t = re.sub(r"\s+", " ", title or "").strip()
-              if not t or len(CJK.findall(t)) / max(len(t), 1) > 0.15:
-                  return NONE_Q
               t = re.sub(r"[#&?%\\\"“”‘’<>{}|^`\[\]]", " ", t)
-              t = re.sub(r"\s+", " ", t).strip(" .,:;")
-              return t[:150] or NONE_Q
+              return re.sub(r"\s+", " ", t).strip(" .,:;")[:150]
+
+
+          def _zh_q(title):
+              # 中文題名：取主標題（去掉《》與副標題），移除全形/半形標點與逗號（OpenAlex filter 以逗號分隔），最多 30 字
+              t = re.sub(r"[《》「」『』]", "", title or "")
+              t = re.split(r"[：:—─－–\-—（(]", t)[0]
+              t = re.sub(r"[\W_]+", " ", t).strip()
+              return t[:30].strip()
+
+
+          def _url(title):
+              t = re.sub(r"\s+", " ", title or "").strip()
+              if not t:
+                  return NONE_URL
+              if len(CJK.findall(t)) / max(len(t), 1) > 0.15:
+                  q = _zh_q(t)
+                  if len(q) < 4:
+                      return NONE_URL
+                  return ("https://api.openalex.org/works?filter=title.search:" + quote(q, safe="") +
+                          "&per-page=3&select=id,title,doi,publication_year,authorships,primary_location,biblio")
+              q = _clean_q(t)
+              if not q:
+                  return NONE_URL
+              return ("https://api.crossref.org/works?query.bibliographic=" + quote(q, safe="") +
+                      "&rows=3&select=title,author,issued,container-title,volume,issue,page,DOI")
 
 
           def _lock_spans(t):
@@ -9151,7 +9174,7 @@ workflow:
 
 
           def main(llm_text: str = "", manuscript: str = "", cand_json: str = "") -> dict:
-              empty = {"sug_json": "[]", "q1": NONE_Q, "q2": NONE_Q, "q3": NONE_Q, "q4": NONE_Q, "q5": NONE_Q, "q6": NONE_Q}
+              empty = dict({"sug_json": "[]"}, **{"u%d" % i: NONE_URL for i in range(1, 7)})
               t = re.sub(r"<think>.*?</think>", "", llm_text or "", flags=re.S).strip()
               t = re.sub(r"^```[a-zA-Z]*\s*|\s*```$", "", t).strip()
               m = re.search(r"\{.*\}", t, re.S)
@@ -9207,21 +9230,21 @@ workflow:
                               "link": str(s.get("link") or "")[:300], "reason": str(s.get("reason") or "")[:400],
                               "options": str(s.get("options") or "")[:400], "verify": str(s.get("verify") or "")[:200],
                               "slots": [slots.index(n) + 1 for n in refs]})
-              qs = []
-              for n in slots:
-                  c = cands[n]
-                  qs.append(_clean_q(c.get("title", "")))
-              qs += [NONE_Q] * (MAX_REFS - len(qs))
-              skipped = sum(1 for q in qs[:len(slots)] if q == NONE_Q)
+              qs = [_url(cands[n].get("title", "")) for n in slots]
+              qs += [NONE_URL] * (MAX_REFS - len(qs))
+              zh = sum(1 for q in qs[:len(slots)] if "openalex" in q)
+              skipped = sum(1 for q in qs[:len(slots)] if q == NONE_URL)
               note = ""
               if dropped:
                   note += "；%d 則因錨點句無法定位而略過" % dropped
+              if zh:
+                  note += "；%d 筆中文題名改以 OpenAlex 核對" % zh
               if skipped:
-                  note += "；%d 筆為中文或不宜查詢，未送 Crossref" % skipped
+                  note += "；%d 筆題名過短或無法查詢，未核對" % skipped
               res = {"sug_json": json.dumps({"suggestions": out, "slot_cands": [cands[n] for n in slots]}, ensure_ascii=False),
                      "status": "通過驗證 %d 則建議、%d 筆候選文獻%s" % (len(out), len(slots), note)}
               for i in range(MAX_REFS):
-                  res["q%d" % (i + 1)] = qs[i]
+                  res["u%d" % (i + 1)] = qs[i]
               return res
         code_language: python3
         variables:
@@ -9241,22 +9264,22 @@ workflow:
           sug_json:
             type: string
             children: null
-          q1:
+          u1:
             type: string
             children: null
-          q2:
+          u2:
             type: string
             children: null
-          q3:
+          u3:
             type: string
             children: null
-          q4:
+          u4:
             type: string
             children: null
-          q5:
+          u5:
             type: string
             children: null
-          q6:
+          u6:
             type: string
             children: null
           status:
@@ -9277,19 +9300,16 @@ workflow:
       type: custom
       data:
         type: http-request
-        title: Crossref 書目核對 1
-        desc: api.crossref.org；失敗不中斷流程
+        title: 書目核對 1
+        desc: 英文→Crossref、中文→OpenAlex；失敗不中斷流程
         selected: false
         method: get
-        url: https://api.crossref.org/works
+        url: '{{#1730000000703.u1#}}'
         authorization:
           type: no-auth
           config: null
         headers: ''
-        params: |-
-          query.bibliographic:{{#1730000000703.q1#}}
-          rows:3
-          select:title,author,issued,container-title,volume,issue,page,DOI
+        params: ''
         body:
           type: none
           data: []
@@ -9327,19 +9347,16 @@ workflow:
       type: custom
       data:
         type: http-request
-        title: Crossref 書目核對 2
-        desc: api.crossref.org；失敗不中斷流程
+        title: 書目核對 2
+        desc: 英文→Crossref、中文→OpenAlex；失敗不中斷流程
         selected: false
         method: get
-        url: https://api.crossref.org/works
+        url: '{{#1730000000703.u2#}}'
         authorization:
           type: no-auth
           config: null
         headers: ''
-        params: |-
-          query.bibliographic:{{#1730000000703.q2#}}
-          rows:3
-          select:title,author,issued,container-title,volume,issue,page,DOI
+        params: ''
         body:
           type: none
           data: []
@@ -9377,19 +9394,16 @@ workflow:
       type: custom
       data:
         type: http-request
-        title: Crossref 書目核對 3
-        desc: api.crossref.org；失敗不中斷流程
+        title: 書目核對 3
+        desc: 英文→Crossref、中文→OpenAlex；失敗不中斷流程
         selected: false
         method: get
-        url: https://api.crossref.org/works
+        url: '{{#1730000000703.u3#}}'
         authorization:
           type: no-auth
           config: null
         headers: ''
-        params: |-
-          query.bibliographic:{{#1730000000703.q3#}}
-          rows:3
-          select:title,author,issued,container-title,volume,issue,page,DOI
+        params: ''
         body:
           type: none
           data: []
@@ -9427,19 +9441,16 @@ workflow:
       type: custom
       data:
         type: http-request
-        title: Crossref 書目核對 4
-        desc: api.crossref.org；失敗不中斷流程
+        title: 書目核對 4
+        desc: 英文→Crossref、中文→OpenAlex；失敗不中斷流程
         selected: false
         method: get
-        url: https://api.crossref.org/works
+        url: '{{#1730000000703.u4#}}'
         authorization:
           type: no-auth
           config: null
         headers: ''
-        params: |-
-          query.bibliographic:{{#1730000000703.q4#}}
-          rows:3
-          select:title,author,issued,container-title,volume,issue,page,DOI
+        params: ''
         body:
           type: none
           data: []
@@ -9477,19 +9488,16 @@ workflow:
       type: custom
       data:
         type: http-request
-        title: Crossref 書目核對 5
-        desc: api.crossref.org；失敗不中斷流程
+        title: 書目核對 5
+        desc: 英文→Crossref、中文→OpenAlex；失敗不中斷流程
         selected: false
         method: get
-        url: https://api.crossref.org/works
+        url: '{{#1730000000703.u5#}}'
         authorization:
           type: no-auth
           config: null
         headers: ''
-        params: |-
-          query.bibliographic:{{#1730000000703.q5#}}
-          rows:3
-          select:title,author,issued,container-title,volume,issue,page,DOI
+        params: ''
         body:
           type: none
           data: []
@@ -9527,19 +9535,16 @@ workflow:
       type: custom
       data:
         type: http-request
-        title: Crossref 書目核對 6
-        desc: api.crossref.org；失敗不中斷流程
+        title: 書目核對 6
+        desc: 英文→Crossref、中文→OpenAlex；失敗不中斷流程
         selected: false
         method: get
-        url: https://api.crossref.org/works
+        url: '{{#1730000000703.u6#}}'
         authorization:
           type: no-auth
           config: null
         headers: ''
-        params: |-
-          query.bibliographic:{{#1730000000703.q6#}}
-          rows:3
-          select:title,author,issued,container-title,volume,issue,page,DOI
+        params: ''
         body:
           type: none
           data: []
@@ -9583,9 +9588,9 @@ workflow:
         code: |
           # -*- coding: utf-8 -*-
           # Dify「程式碼執行」節點 17：把理論補強建議以紅字區塊插入稿件，並附紅字建議參考文獻
-          # 輸入：manuscript (String)、sug_json (String)、c1..c6 (String：Crossref 回應 body)
+          # 輸入：manuscript (String)、sug_json (String)、c1..c6 (String：Crossref 或 OpenAlex 回應 body)
           # 輸出：annotated_manuscript (String，標記版)、annotated_html (String，紅字 HTML)、suggestion_report (String：給人看的摘要)
-          # 書目原則：只使用檢索結果與 Crossref 回傳的欄位，不補寫任何欄位；Crossref 標題相似度 >= 0.85 才視為已核對。
+          # 書目原則：只使用檢索結果與 Crossref 回傳的欄位，不補寫任何欄位；Crossref／OpenAlex 標題相似度 >= 0.85 才視為已核對。
           import difflib
           import html
           import json
@@ -9598,19 +9603,45 @@ workflow:
               return re.sub(r"[\W_]+", "", (s or "").lower())
 
 
+          def _from_openalex(w):
+              # 轉成與 Crossref 相同的欄位格式
+              au = []
+              for x in w.get("authorships") or []:
+                  dn = ((x.get("author") or {}).get("display_name") or "").strip()
+                  dn = re.split(r"\s+(?=[A-Z][a-z]+\s+[A-Z])", dn)[0] if CJK.search(dn) else dn
+                  if not dn:
+                      continue
+                  if CJK.search(dn):
+                      au.append({"family": re.sub(r"\s+", "", dn.split(" ")[0]), "given": ""})
+                  else:
+                      parts = dn.split()
+                      au.append({"family": parts[-1], "given": " ".join(parts[:-1])})
+              bi, src = w.get("biblio") or {}, ((w.get("primary_location") or {}).get("source") or {})
+              pg = "-".join(str(x) for x in (bi.get("first_page"), bi.get("last_page")) if x)
+              doi = re.sub(r"^https?://doi.org/", "", w.get("doi") or "")
+              return {"title": [w.get("title") or ""], "author": au, "issued": {"date-parts": [[w.get("publication_year")]]},
+                      "container-title": [src.get("display_name")] if src.get("display_name") else [], "volume": bi.get("volume"),
+                      "issue": bi.get("issue"), "page": pg or None, "DOI": doi or None}
+
+
           def _crossref_match(body, title):
               try:
                   d = json.loads(body or "")
-                  items = d["message"]["items"]
               except Exception:
-                  return None
+                  return None, ""
+              if isinstance(d.get("message"), dict):
+                  items, src = d["message"].get("items") or [], "Crossref"
+              elif isinstance(d.get("results"), list):
+                  items, src = [_from_openalex(w) for w in d["results"]], "OpenAlex"
+              else:
+                  return None, ""
               best, score = None, 0.0
               for it in items:
                   tt = " ".join(it.get("title") or [])
                   r = difflib.SequenceMatcher(None, _n(tt), _n(title)).ratio()
                   if r > score:
                       best, score = it, r
-              return best if best is not None and score >= 0.85 else None
+              return (best, src) if best is not None and score >= 0.85 else (None, "")
 
 
           def _name(a):
@@ -9690,16 +9721,16 @@ workflow:
               refs, verified = [], 0
               msn = _n(manuscript)
               for i, c in enumerate(cands):
-                  it = _crossref_match(bodies[i], c.get("title", ""))
+                  it, src = _crossref_match(bodies[i], c.get("title", ""))
                   if it is not None:
                       doi = (it.get("DOI") or "").lower()
                       if (doi and doi in manuscript.lower()) or (len(_n(c.get("title"))) >= 12 and _n(c.get("title")) in msn):
                           refs.append("R%d　（此文獻稿中已列於參考文獻，毋須重複新增；上列建議可直接對照稿中既有條目）" % (i + 1))
                           continue
                       verified += 1
-                      refs.append("R%d　%s　（已以 Crossref 核對書目欄位；仍請對照原文）" % (i + 1, _fmt_crossref(it)))
+                      refs.append("R%d　%s　（已以 %s 核對書目欄位；仍請對照原文）" % (i + 1, _fmt_crossref(it), src))
                   else:
-                      refs.append("R%d　《%s》｜%s｜%s　（僅依 Google Scholar 檢索結果，書目欄位不完整、未經 Crossref 核對，請作者逐項補全並對照原文）" %
+                      refs.append("R%d　《%s》｜%s｜%s　（僅依 Google Scholar 檢索結果，書目欄位不完整、未經 Crossref／OpenAlex 核對，請作者逐項補全並對照原文）" %
                                   (i + 1, (c.get("title", "") or "").strip("《》 "), c.get("pub") or "出處不明", c.get("link") or "無連結"))
               lines = manuscript.split("\n")
               inserts = {}
@@ -9733,7 +9764,7 @@ workflow:
               ann = "\n".join(out)
               body = "".join(('<p style="color:#c00000">%s</p>' if r else "<p>%s</p>") % html.escape(l) if l.strip() else "" for l, r in zip(out, red))
               page = "<html><head><meta charset='utf-8'><title>標註版（理論補強建議）</title></head><body style='font-family:serif'>%s</body></html>" % body
-              rep = "理論補強建議 %d 則（%d 則已插入稿件）；建議文獻 %d 筆，其中 %d 筆已以 Crossref 核對書目。" % (len(sugs), len(inserts), len(refs), verified)
+              rep = "理論補強建議 %d 則（%d 則已插入稿件）；建議文獻 %d 筆，其中 %d 筆已以 Crossref／OpenAlex 核對書目。" % (len(sugs), len(inserts), len(refs), verified)
               return {"annotated_manuscript": ann, "annotated_html": page, "suggestion_report": rep}
         code_language: python3
         variables:
