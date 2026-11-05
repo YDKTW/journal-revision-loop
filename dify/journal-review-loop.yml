@@ -3,14 +3,14 @@ app:
   mode: workflow
   icon: 📝
   icon_background: '#FFEAD5'
-  description: Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註
+  description: Gemini＋GPT 審查，Claude 修稿，程式碼判斷停止條件；含教學實踐研究計畫書預審模式；v1.4 新增學術顧問；v1.5 新增理論補強紅字標註；v1.5.1 修正 Crossref 查詢與建議文獻去重
   use_icon_as_answer_icon: false
 kind: app
 version: 0.3.1
 workflow:
   conversation_variables: []
   environment_variables:
-  - id: c3b6c528-b86c-4f6a-ad63-9c27a52328f5
+  - id: f94837c3-f820-4ff4-b034-54ee3c4c8869
     name: RUBRIC
     selector:
     - env
@@ -275,7 +275,7 @@ workflow:
       `id` 編碼規則：`{G|P}-R{輪次}-{序號}`，G 代表 Gemini，P 代表 GPT，供修稿者在對照表中逐條回應。
     value_type: string
     description: 審查標準全文（review-rubric.md）
-  - id: 2382f831-6a56-4796-baf9-8b65b8eecb04
+  - id: 722c26f8-ec47-49a4-bcf2-2db2a925e2a6
     name: RUBRIC_PROPOSAL
     selector:
     - env
@@ -530,7 +530,7 @@ workflow:
 
     value_type: string
     description: 教學實踐研究計畫書預審標準
-  - id: 6e2c72fe-d728-4b7e-b26e-22c6504726a1
+  - id: a0f2ef61-3097-449a-8cfc-fad8135d8a81
     name: SYS_A_JOURNAL
     selector:
     - env
@@ -606,7 +606,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查A系統提示（期刊；含 {{rubric}}、{{paper_type}} 占位符）
-  - id: 2a66aed9-6296-462d-87a4-7756f0f5cc72
+  - id: 53a3648b-608b-4564-a395-98a05890d8ed
     name: SYS_B_JOURNAL
     selector:
     - env
@@ -713,7 +713,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查B系統提示（期刊）
-  - id: a3763362-9f1d-43fb-be6e-2149864c7f88
+  - id: 32762828-6198-4013-8959-874f22cfccad
     name: SYS_A_PROPOSAL
     selector:
     - env
@@ -810,7 +810,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查A系統提示（計畫書）
-  - id: f6555fec-b80b-4fc1-95f6-aa7793a4239f
+  - id: 0b24ca1d-c6c7-43e2-9e31-a74115dccfc1
     name: SYS_B_PROPOSAL
     selector:
     - env
@@ -901,7 +901,7 @@ workflow:
       若使用者訊息附有【學術顧問建議】，可採納其中的選項寫成意見，但須自行對照稿件判斷其是否成立；顧問未提及的問題，仍須依標準提出。不得杜撰文獻；理論與方法只能寫名稱與核心概念，作者、年份、書目只能取自文獻清單。
     value_type: string
     description: 審查B系統提示（計畫書）
-  - id: 03f91270-0902-46c2-a1bc-c0c8075ae0da
+  - id: 2d70b470-9c79-48f6-9d3e-2d0dce60af77
     name: REVISER_SKILL_PROPOSAL
     selector:
     - env
@@ -1164,7 +1164,7 @@ workflow:
       全部使用繁體中文（臺灣慣用語），不得夾雜簡體字。
     value_type: string
     description: 修稿者 Skill（計畫書版：期刊通則＋計畫書補充規則）
-  - id: 76f33f96-a5c5-46e7-b249-657415660cc6
+  - id: 3bd7d804-0637-4317-b502-74e58d0ef6c0
     name: SYS_FINAL_JOURNAL
     selector:
     - env
@@ -1244,7 +1244,7 @@ workflow:
          - 第六節第一點須建議：將 `max_rounds` 調為 2 以上，讓系統進入修稿與複審。
     value_type: string
     description: 終審系統提示（期刊）
-  - id: 1c133ffe-2575-49e9-a666-5367edb6a63f
+  - id: f4f853f1-cf34-4199-920d-cc7e6482bfd3
     name: SYS_FINAL_PROPOSAL
     selector:
     - env
@@ -1326,7 +1326,7 @@ workflow:
       ---
     value_type: string
     description: 終審系統提示（計畫書）
-  - id: bc03e808-cc29-4d06-95f7-716fbbdcae7f
+  - id: 899e0dac-057e-47b4-aa2c-1f6ea95d6d89
     name: DEFAULT_FORMAT_PROPOSAL
     selector:
     - env
@@ -1342,7 +1342,7 @@ workflow:
       - 研究倫理：涉及心理資訊（焦慮、情緒、壓力等）、特殊身分研究對象，或實驗組／對照組設計者，應規劃研究倫理審查；其餘須有研究參與者招募與知情同意規劃；學生資料須去識別化。
     value_type: string
     description: 計畫書官方格式摘要（未上傳其他格式檔時使用）
-  - id: e5b64a54-593f-4039-8a91-7272d14f506e
+  - id: d4e0049d-6368-436b-9039-843449848c6c
     name: LAYOUT_PROPOSAL
     selector:
     - env
@@ -1411,7 +1411,7 @@ workflow:
       }
     value_type: string
     description: 計畫書官方版面規格（Word 匯出用）
-  - id: 42a66ca6-8ad0-44f4-a481-e76edef9cd1b
+  - id: 52a6aede-284f-4d27-8394-d666bdddbbda
     name: REVISER_SKILL
     selector:
     - env
@@ -1622,7 +1622,7 @@ workflow:
       **本次為自動化模式**，請依「自動化模式的輸出包裝」輸出 `<edits>`（只列要改的句子，不要輸出全文）、`<response_table>`、`<summary_json>`、`<plain_summary>` 四個標籤。
     value_type: string
     description: 修稿者 Skill 本文
-  - id: 7e083b77-df79-45c1-a02b-20a95f92fb01
+  - id: d5be8ed9-ec9e-459b-a5ff-d39e55a12758
     name: SERPAPI_KEY
     selector:
     - env
@@ -1630,7 +1630,7 @@ workflow:
     value: ''
     value_type: secret
     description: SerpApi 金鑰（Google Scholar 文獻檢索）。留空則略過文獻檢索，其他流程照常
-  - id: 9d7c8991-7c2a-4fe7-88be-56563d3428ba
+  - id: 48f9c8b1-f2ef-45da-bca7-39161810c58f
     name: DEFAULT_FORMAT_RULES
     selector:
     - env
@@ -2623,7 +2623,7 @@ workflow:
         width: 2000
         height: 640
         break_conditions:
-        - id: 846082ff-ddc6-40ff-a58b-793f34f7b4e5
+        - id: df83cafd-26ac-4b4d-af44-42676b6efd22
           varType: string
           variable_selector:
           - '1730000000002'
@@ -2631,98 +2631,98 @@ workflow:
           comparison_operator: is not
           value: continue
         loop_variables:
-        - id: 519b06da-7c1f-4c13-92df-47e6fca26a3b
+        - id: 00188952-29bb-42ad-ae82-7b26c02c57ba
           label: current_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: 97aaa187-039f-4000-a82d-2bc1df19ba65
+        - id: 04b149e1-f9ca-4706-8f17-ce2cf1a7e7b1
           label: prev_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: a4b1ecdb-d869-4eb6-bfab-6da86e7663e2
+        - id: 401d9c08-4a8d-4cd1-9391-09ec47057761
           label: orig_manuscript
           var_type: string
           value_type: variable
           value:
           - '1730000000204'
           - manuscript_ready
-        - id: 8ec0685b-9016-4a89-9602-f750ca8a66e9
+        - id: 4dfbc80e-b128-46d0-a7fa-7553b0cab4f4
           label: round_no
           var_type: number
           value_type: constant
           value: 1
-        - id: 4300a7c0-5eb9-46bf-a0f1-4a6e2c73a85c
+        - id: dcd57164-1088-48fb-8213-8b14b270d8ce
           label: decision
           var_type: string
           value_type: constant
           value: continue
-        - id: 34ac4357-84ce-453b-a95b-54c77783e8ca
+        - id: 267dcc7f-6ac7-4574-b88b-1c48e33beec9
           label: prev_total
           var_type: number
           value_type: constant
           value: 0
-        - id: 53940a58-92c7-4960-ae6a-6466e941a866
+        - id: 14b02da1-1453-49b9-8a87-000963eacc7a
           label: prev_major
           var_type: number
           value_type: constant
           value: 0
-        - id: e368df9f-2be7-4b99-8fc8-af953bfa2bd8
+        - id: 84bd127a-a5fb-4221-9d40-d4f6baeac0bb
           label: pass_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: e547fefe-315c-4891-9104-8c0aafb9bc7d
+        - id: 6b2c2063-3603-4002-91cf-550bf89641d6
           label: stall_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: 5de383c1-18a1-4d0d-9542-b67bbd65ca16
+        - id: 7c91ede9-9c32-4a2d-82d6-5979f16a5449
           label: fail_streak
           var_type: number
           value_type: constant
           value: 0
-        - id: 8b1aa5fe-f7a8-4741-86e7-ef2cd5a16f50
+        - id: 57a8772e-a272-405f-b28b-c40ffff60c81
           label: history
           var_type: string
           value_type: constant
           value: ''
-        - id: 7e73b1fb-d7a5-49fc-aae6-d2077827a8ae
+        - id: fbd52b45-ec0a-40b8-b611-3bba1541e999
           label: prior_gemini
           var_type: string
           value_type: constant
           value: '[]'
-        - id: 45dc6dcd-ff77-48ce-87ef-aeb97b413f71
+        - id: 049dc3b0-556f-4ca1-8d71-e23d2c177147
           label: prior_gpt
           var_type: string
           value_type: constant
           value: '[]'
-        - id: 4db9a861-5419-470b-87cd-943d7dfbf096
+        - id: 5b2ffb92-9266-46d1-8e2d-6fcfacdc2f26
           label: response_summary
           var_type: string
           value_type: constant
           value: ''
-        - id: 747efd12-3edf-4455-b8fd-5cc120611f78
+        - id: 1636f45e-ab77-40a3-833c-0787b572ea9a
           label: last_response_table
           var_type: string
           value_type: constant
           value: ''
-        - id: 4cb53394-539a-4739-8791-81fa6abbb225
+        - id: f4e8b909-68e9-4a3e-8fda-586167b2b552
           label: last_marked
           var_type: string
           value_type: constant
           value: ''
-        - id: 65de3390-f4e6-4f15-ad46-da28c8ec2240
+        - id: 18e8f8c8-0945-477b-8b60-eadbaddd4247
           label: last_flags
           var_type: string
           value_type: constant
           value: ''
-        - id: 3928c230-e4be-4b05-bd5c-da2733350a2f
+        - id: 364ba3a4-73fe-4e07-9d61-b44b0bfa5240
           label: last_reason
           var_type: string
           value_type: constant
@@ -2768,10 +2768,10 @@ workflow:
             temperature: 1.0
             max_tokens: 32000
         prompt_template:
-        - id: 733a8c2c-9fa9-43f4-9bcc-fd429519e516
+        - id: 42179dbc-1b4a-4f9a-9975-f485ea45308f
           role: system
           text: '{{#1730000000312.sys_a#}}'
-        - id: cc398612-b9f8-48ad-9bc3-ebb7238a7b91
+        - id: 2fbcd919-2767-49dd-89d8-cd9efd86e14b
           role: user
           text: |-
             請審查以下稿件。
@@ -2843,10 +2843,10 @@ workflow:
           completion_params:
             max_tokens: 32000
         prompt_template:
-        - id: d4e4bdef-5b18-4ce9-ad79-55da95ed4c7f
+        - id: 707e7f38-fbf5-4e72-a67a-6f01debe01df
           role: system
           text: '{{#1730000000312.sys_b#}}'
-        - id: a5975de0-3d3d-493b-bdff-c7c77a03ee70
+        - id: 26a98fda-b1ad-4a57-8862-e541e336f69d
           role: user
           text: |-
             請審查以下稿件。
@@ -3686,7 +3686,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 6572542d-e46b-45c5-b725-b912232d6ef3
+          - id: 7aac28e1-9050-4909-b8dc-e889cf0a2c1c
             varType: string
             variable_selector:
             - '1730000000002'
@@ -3726,10 +3726,10 @@ workflow:
           completion_params:
             max_tokens: 16000
         prompt_template:
-        - id: 6143a2d3-4086-4ac0-9616-ffa04e98ac71
+        - id: fe96e80b-fa39-4376-87ea-895d146763d6
           role: system
           text: '{{#1730000000312.reviser_system#}}'
-        - id: e009d717-1129-41b4-b111-5f70b614ded4
+        - id: b53bbc23-f90d-41b3-bfc7-d872c03b92c9
           role: user
           text: |-
             【輪次】{{#1730000000002.round_no#}}
@@ -4418,7 +4418,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: d98d22ce-e88b-4501-9052-d6a3906d19f6
+          - id: 4d8ae40a-98fb-47c9-a473-bbdb96f86bc7
             varType: string
             variable_selector:
             - '1730000000001'
@@ -4881,7 +4881,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: f8894e70-2893-4530-a351-c82b970a7502
+          - id: 42ec0c01-4ac9-4539-9d08-c3ade8202d01
             varType: string
             variable_selector:
             - '1730000000001'
@@ -4939,7 +4939,7 @@ workflow:
             temperature: 0.1
             max_tokens: 16000
         prompt_template:
-        - id: 067408d0-496a-430f-acf6-0c29127814cb
+        - id: 9d955b39-5f7b-457b-b798-57d6f3169d6a
           role: system
           text: |-
             你是期刊稿約整理員。使用者會提供某期刊的稿約、投稿須知或格式範本的擷取文字。請把它整理成一份結構固定、簡潔的「期刊規範摘要」。
@@ -4985,7 +4985,7 @@ workflow:
             }
             </layout_spec>
             ```
-        - id: f600afe4-a859-4cbf-93e5-7fa53f962894
+        - id: ec20ed50-c3ef-4f7f-ae86-8b34efe84c4d
           role: user
           text: |-
             【稿約或格式文件的擷取文字】
@@ -5158,7 +5158,7 @@ workflow:
             temperature: 0.1
             max_tokens: 32000
         prompt_template:
-        - id: 001e40d2-144b-4117-8203-e16bcec3054c
+        - id: 7f30e6c5-f153-485c-93b3-044c194753e8
           role: system
           text: |-
             你是學術稿件的格式編輯。你的工作只有一項：在**完全不改變內容**的前提下，整理稿件的版面與標點格式。
@@ -5210,7 +5210,7 @@ workflow:
             5. 不要重複提出同一項修改。
 
             程式會逐項檢查：不合格的項目只會被略過，不影響其他項目；因此請寧可保守，不要冒險。
-        - id: f85f839c-d4dc-42a2-b6a2-afa3cf86c2a3
+        - id: 643c05b1-3ed8-4732-8d93-5c984d9b1d69
           role: user
           text: |-
             【規範來源】{{#1730000000312.journal_source#}}
@@ -6187,10 +6187,10 @@ workflow:
           completion_params:
             max_tokens: 20000
         prompt_template:
-        - id: 65695639-23fe-4c57-852c-99cf7359dbc2
+        - id: 32632bb1-e9f2-41a3-a739-d30a68002dfd
           role: system
           text: '{{#1730000000312.final_system#}}'
-        - id: 51b349a8-004b-4e85-aef0-95274174429a
+        - id: f10c4410-fc8e-4e06-b058-92610df74b2b
           role: user
           text: |-
             {{#1730000000308.verdict_hint#}}
@@ -6249,7 +6249,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 5000720c-c4a3-42d1-aade-802349b90464
+          - id: 6d386196-d981-4541-aa89-f5cd56831281
             varType: file
             variable_selector:
             - '1730000000001'
@@ -6340,7 +6340,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 3e0d2158-fc96-4c98-8899-0886aee9e7ef
+          - id: a0a711e7-d55e-4d68-9ed9-a01b539f17fa
             varType: file
             variable_selector:
             - '1730000000001'
@@ -7877,7 +7877,7 @@ workflow:
             temperature: 0.1
             max_tokens: 2000
         prompt_template:
-        - id: b367fdf9-75de-49d2-b235-0a629610f8ef
+        - id: 0cfadbd7-76af-4c06-875f-7909166c85c6
           role: system
           text: |-
             你是學術文獻檢索助理。依使用者提供的稿件開頭，產生 3 組 Google Scholar 檢索字串，用來找「與本研究最相關的既有研究」。
@@ -7894,7 +7894,7 @@ workflow:
             · 憲政民主／半總統制 → constitutional democracy, semi-presidentialism；地方自治 → local self-government；社區總體營造／社區發展 → community building, community development, Taiwan
             依論文類型調整：teaching_practice_proposal（教學實踐研究計畫書）→ 檢索重點是「研究主題的核心概念」與「教學場域加方法的既有研究」，第 1 組取研究動機與主題的核心概念，第 2 組取軍校或課程對象加教學方法加成效評估，第 3 組用英文核心概念；cross_cultural（跨文化研究）→ 第 1 組含所比較的文化／群體與研究主題，第 2 組含跨文化理論或測量等值、適應、溝通等概念，第 3 組用 cross-cultural／intercultural／measurement invariance 等英文術語；literature_linguistics（文學與語言研究）→ 第 1 組含作家／作品／語言現象與研究主題，第 2 組含所用理論或分析取徑（如敘事學、話語分析、語用學、語料庫、翻譯研究），第 3 組用對應英文術語；其他類型照一般規則。
             只輸出 JSON，格式：{"queries":["...","...","..."]}，不要任何其他文字。
-        - id: 347fca9d-74ad-41a4-80fe-542eb38aa04d
+        - id: 628f6ea6-defa-49c5-8bea-bcdf078469f8
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -8280,7 +8280,7 @@ workflow:
           case_id: 'true'
           logical_operator: and
           conditions:
-          - id: 008fb5e5-3c33-4748-8cbb-cfd25bf1b604
+          - id: dd25746c-567c-43cb-ab0f-05ebb12bfaae
             varType: string
             variable_selector:
             - '1730000000001'
@@ -8315,7 +8315,7 @@ workflow:
           completion_params:
             max_tokens: 16000
         prompt_template:
-        - id: 40466f93-921b-43e5-a27e-32362966087c
+        - id: 20f2e037-bcf7-4f0e-8b92-ae0d78186047
           role: system
           text: |-
             你是教學實踐研究計畫的「對齊診斷員」。你的任務只有一件事：檢查計畫書內部，學理論述與各計畫項次是否環環相扣，並用表格與清單呈現缺口。你不審查優劣、不打分數、不給嚴重度、不改寫任何段落。
@@ -8383,7 +8383,7 @@ workflow:
             Markdown、繁體中文（臺灣慣用語）、不得夾雜簡體字。總長度不超過 4500 字（清單區力求精簡，把篇幅留給矩陣、孤兒項與建議）。章節標題固定為：
             `## 一、理論與項次清單`（含實證研究群 L）、`## 二、對齊矩陣`、`## 三、孤兒項`、`## 四、核心理論的論述深度`、`## 五、深化建議`、`## 六、文獻檢索線索`。
             不要輸出這些章節以外的前言或結語。
-        - id: 9a8d2e2d-e6c8-493e-a86d-935bd8673bfb
+        - id: 06443ab8-716d-4c47-93ce-91ae6400b349
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -8500,7 +8500,7 @@ workflow:
           completion_params:
             max_tokens: 24000
         prompt_template:
-        - id: 8551e72e-fb4d-46b4-9817-7dd695328cad
+        - id: bb024548-4bee-4b54-aff2-73edc2d69e0e
           role: system
           text: |-
             你是一位資深的學術顧問，熟悉社會科學與教育研究的理論脈絡與研究方法。你的任務不是挑錯，而是幫作者把研究做得更有深度：在理論、觀點、研究主題與研究方法四個面向，提出具體、可行、有取捨說明的建議選項。
@@ -8540,7 +8540,7 @@ workflow:
 
             ### 輸出格式
             Markdown、繁體中文（臺灣慣用語）、不得夾雜簡體字。章節內容總長度不超過 5000 字。不要輸出章節以外的前言或結語。
-        - id: db70914e-e478-487d-be98-deba18ae89cc
+        - id: c3370e09-0b74-42b5-ae35-dd15454c43cd
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -9050,7 +9050,7 @@ workflow:
           completion_params:
             max_tokens: 12000
         prompt_template:
-        - id: 6eee2a10-448b-4b5b-9d1a-407601d3ff07
+        - id: 0efc1300-39cb-4ab6-acac-17d9806a362e
           role: system
           text: |-
             你是一位資深學術顧問。你要在已完成修訂的稿件中，找出最值得補強理論的位置，為每個位置提出「理論或概念補強建議」，並從使用者提供的「候選文獻清單」中，挑出最相關的期刊論文作為延伸閱讀。
@@ -9073,7 +9073,7 @@ workflow:
 
             ### 輸出（只輸出 JSON，不要任何其他文字）
             `{"suggestions":[{"anchor":"稿中逐字複製的完整句子","concept":"理論或概念名稱","link":"與稿中哪個發現或論述連結（40 字內）","reason":"為何值得補、可回應什麼疑慮（80 字內）","options":"A：…／B：…（含取捨，120 字內）","refs":[3,12],"verify":"涉及稿外知識，請作者查證"}]}`
-        - id: de798807-4f76-414c-92b9-be9b393e80e9
+        - id: 1b665a3f-1afa-4e2a-8cc2-3178f5b92b19
           role: user
           text: |-
             【論文類型】{{#1730000000001.paper_type#}}
@@ -9129,6 +9129,21 @@ workflow:
 
           MAX_SUG, MAX_REFS = 8, 6
           NONE_Q = "zzqq-none"
+          CJK = re.compile(r"[㐀-鿿]")
+
+
+          def _n(t):
+              return re.sub(r"[\W_]+", "", (t or "").lower())
+
+
+          def _clean_q(title):
+              # Crossref 查詢字串：含中日韓字元者不送（Crossref 涵蓋有限，且曾造成 HTTP 節點 Unknown error）；其餘移除會干擾參數解析的符號
+              t = re.sub(r"\s+", " ", title or "").strip()
+              if not t or len(CJK.findall(t)) / max(len(t), 1) > 0.15:
+                  return NONE_Q
+              t = re.sub(r"[#&?%\\\"“”‘’<>{}|^`\[\]]", " ", t)
+              t = re.sub(r"\s+", " ", t).strip(" .,:;")
+              return t[:150] or NONE_Q
 
 
           def _lock_spans(t):
@@ -9154,6 +9169,8 @@ workflow:
               except Exception:
                   cands = {}
               locks = _lock_spans(manuscript)
+              msn = _n(manuscript)
+              already = {n for n, c in cands.items() if len(_n(c.get("title"))) >= 12 and _n(c.get("title")) in msn}
               out, slots, dropped = [], [], 0
               for s in sugs:
                   if len(out) >= MAX_SUG:
@@ -9179,7 +9196,7 @@ workflow:
                           n = int(x)
                       except Exception:
                           continue
-                      if n not in cands or n in refs:
+                      if n not in cands or n in refs or n in already:
                           continue
                       if n not in slots:
                           if len(slots) >= MAX_REFS:
@@ -9193,10 +9210,16 @@ workflow:
               qs = []
               for n in slots:
                   c = cands[n]
-                  qs.append(re.sub(r"\s+", " ", c["title"]).strip()[:150])
+                  qs.append(_clean_q(c.get("title", "")))
               qs += [NONE_Q] * (MAX_REFS - len(qs))
+              skipped = sum(1 for q in qs[:len(slots)] if q == NONE_Q)
+              note = ""
+              if dropped:
+                  note += "；%d 則因錨點句無法定位而略過" % dropped
+              if skipped:
+                  note += "；%d 筆為中文或不宜查詢，未送 Crossref" % skipped
               res = {"sug_json": json.dumps({"suggestions": out, "slot_cands": [cands[n] for n in slots]}, ensure_ascii=False),
-                     "status": "通過驗證 %d 則建議、%d 筆候選文獻%s" % (len(out), len(slots), ("；%d 則因錨點句無法定位而略過" % dropped) if dropped else "")}
+                     "status": "通過驗證 %d 則建議、%d 筆候選文獻%s" % (len(out), len(slots), note)}
               for i in range(MAX_REFS):
                   res["q%d" % (i + 1)] = qs[i]
               return res
@@ -9590,19 +9613,38 @@ workflow:
               return best if best is not None and score >= 0.85 else None
 
 
+          def _name(a):
+              fam, giv = (a.get("family") or "").strip(), (a.get("given") or "").strip()
+              if not fam and not giv:
+                  return ""
+              if CJK.search(fam + giv):
+                  return fam + giv
+              # Crossref 偶有「family 含縮寫」「全大寫」等資料：把 family 內的縮寫移到 given，全大寫改為首字大寫
+              toks = fam.replace(",", " ").split()
+              ini_t = [t for t in toks if re.fullmatch(r"[A-Za-z]\.?", t)]
+              fam_t = [t for t in toks if t not in ini_t]
+              if fam_t and ini_t:
+                  fam, giv = " ".join(fam_t), (" ".join(ini_t) + " " + giv).strip()
+              elif len(toks) > 1:
+                  fam = " ".join(toks)
+              if fam.isupper() and len(fam) > 1:
+                  fam = fam.capitalize()
+              giv = giv.replace(",", " ")
+              ini = " ".join(p[0].upper() + "." for p in re.split(r"[\s\-.]+", giv) if p)
+              return (fam + (", " + ini if ini else "")).strip(", ")
+
+
+          def _case(s, kind):
+              if s and s.isupper():
+                  if kind == "container":
+                      return re.sub(r" (Of|And|The|For|In|On|To|A|An)\b", lambda m: m.group(0).lower(), s.title())
+                  return s[0] + s[1:].lower()
+              return s
+
+
           def _fmt_crossref(it):
-              au = []
-              for a in (it.get("author") or [])[:6]:
-                  fam, giv = (a.get("family") or "").strip(), (a.get("given") or "").strip()
-                  if not fam and not giv:
-                      continue
-                  if CJK.search(fam + giv):
-                      au.append(fam + giv)
-                  else:
-                      ini = "".join(p[0] + "." for p in re.split(r"[\s\-]+", giv) if p)
-                      au.append((fam + (", " + ini if ini else "")).strip(", "))
-              if len(it.get("author") or []) > 6:
-                  au.append("等")
+              raw = it.get("author") or []
+              au = [x for x in (_name(a) for a in raw[:6]) if x]
               year = ""
               try:
                   year = str(it["issued"]["date-parts"][0][0])
@@ -9611,15 +9653,25 @@ workflow:
               title = " ".join(it.get("title") or [])
               cont = " ".join(it.get("container-title") or [])
               vol, iss, pg, doi = it.get("volume"), it.get("issue"), it.get("page"), it.get("DOI")
-              s = ("、".join(au) if au and CJK.search(au[0]) else ", ".join(au)) or "（作者欄位缺）"
-              s += "（%s）。%s。" % (year or "年份缺", title)
-              if cont:
-                  s += cont
-                  if vol:
-                      s += "，" + str(vol) + ("(%s)" % iss if iss else "")
-                  if pg:
-                      s += "，" + str(pg)
-                  s += "。"
+              zh = bool(CJK.search(title) or (au and CJK.search(au[0])))
+              if zh:
+                  s = ("、".join(au) or "（作者欄位缺）") + ("等" if len(raw) > 6 else "")
+                  s += "（%s）。%s。" % (year or "年份缺", title)
+                  if cont:
+                      s += cont + (("，" + str(vol) + ("(%s)" % iss if iss else "")) if vol else "") + (("，" + str(pg)) if pg else "") + "。"
+              else:
+                  names = (", ".join(au[:-1]) + ", & " + au[-1] if len(au) > 1 else au[0]) if au else "（作者欄位缺）"
+                  if len(raw) > 6:
+                      names += ", et al."
+                  title = _case(title, "title")
+                  s = "%s (%s). %s." % (names, year or "年份缺", title.rstrip("."))
+                  if cont:
+                      s += " " + _case(cont, "container")
+                      if vol:
+                          s += ", " + str(vol) + ("(%s)" % iss if iss else "")
+                      if pg:
+                          s += ", " + str(pg)
+                      s += "."
               if doi:
                   s += " https://doi.org/" + doi
               return s
@@ -9636,14 +9688,19 @@ workflow:
                   return {"annotated_manuscript": "", "annotated_html": "", "suggestion_report": "沒有可標註的理論補強建議。"}
               bodies = [c1, c2, c3, c4, c5, c6]
               refs, verified = [], 0
+              msn = _n(manuscript)
               for i, c in enumerate(cands):
                   it = _crossref_match(bodies[i], c.get("title", ""))
                   if it is not None:
+                      doi = (it.get("DOI") or "").lower()
+                      if (doi and doi in manuscript.lower()) or (len(_n(c.get("title"))) >= 12 and _n(c.get("title")) in msn):
+                          refs.append("R%d　（此文獻稿中已列於參考文獻，毋須重複新增；上列建議可直接對照稿中既有條目）" % (i + 1))
+                          continue
                       verified += 1
                       refs.append("R%d　%s　（已以 Crossref 核對書目欄位；仍請對照原文）" % (i + 1, _fmt_crossref(it)))
                   else:
                       refs.append("R%d　《%s》｜%s｜%s　（僅依 Google Scholar 檢索結果，書目欄位不完整、未經 Crossref 核對，請作者逐項補全並對照原文）" %
-                                  (i + 1, c.get("title", ""), c.get("pub") or "出處不明", c.get("link") or "無連結"))
+                                  (i + 1, (c.get("title", "") or "").strip("《》 "), c.get("pub") or "出處不明", c.get("link") or "無連結"))
               lines = manuscript.split("\n")
               inserts = {}
               for k, s in enumerate(sugs, 1):

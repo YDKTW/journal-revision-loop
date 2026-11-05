@@ -156,3 +156,11 @@ python tools/export_docx.py result.json -o 修訂稿.docx --also-doc --also-pdf
 - 新增輸出：annotated_manuscript（標記版，區塊以【理論補強建議 Sn｜待作者評估是否採用】與【建議參考文獻…】開頭，供匯出端染紅）、annotated_html（已染紅的 HTML）、suggestion_report、suggestion_status。乾淨的 final_manuscript 不受影響。
 - 需要 SERPAPI_KEY：未設定時沒有候選文獻，建議仍可產生，但不會附文獻。
 - 預估增加 2–4 分鐘；總時間逼近 20 分鐘時，可把「理論補強標註」節點的 Effort 降為 medium，或關閉 Adaptive Thinking。
+
+## v1.5.1：Crossref 核對節點修正與建議文獻去重
+
+- **問題**：實跑時「Crossref 書目核對」節點出現 Unknown error（重試 1 次後以預設值繼續，所以整體顯示 PARTIAL SUCCESS）。已知觸發情境為查詢字串含中文標題；中文期刊本來就多不在 Crossref，送出去沒有價值。
+- **修正**：中文（或中日韓字元占比高）與無法查詢的標題不再送 Crossref，直接列為「僅依檢索結果、未核對」；其餘查詢先移除 `# & ? % " [ ] { }` 等干擾參數解析的符號並限制長度。狀態訊息會註明有幾筆未送 Crossref。
+- **去重**：標題或 DOI 已出現在稿中參考文獻的候選，不再被選為建議文獻；若 Crossref 核對後才發現稿中已有，該編號只標「稿中已列於參考文獻」，不重複列書目。
+- **書目格式**：英文條目改用 APA 標點（Author, A. B., & Author, C. (年). 篇名. 期刊, 卷(期), 頁. DOI）；全大寫的作者、篇名、刊名改為正常大小寫；Crossref 的 family 欄位夾帶縮寫時自動拆開。中文條目維持中文標點。
+- 若 Dify 仍顯示該節點警告，點開節點看輸出：只要 body 為空，程式就視為「未核對」，不影響結果，可忽略。

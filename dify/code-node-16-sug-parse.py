@@ -8,6 +8,21 @@ import re
 
 MAX_SUG, MAX_REFS = 8, 6
 NONE_Q = "zzqq-none"
+CJK = re.compile(r"[㐀-鿿]")
+
+
+def _n(t):
+    return re.sub(r"[\W_]+", "", (t or "").lower())
+
+
+def _clean_q(title):
+    # Crossref 查詢字串：含中日韓字元者不送（Crossref 涵蓋有限，且曾造成 HTTP 節點 Unknown error）；其餘移除會干擾參數解析的符號
+    t = re.sub(r"\s+", " ", title or "").strip()
+    if not t or len(CJK.findall(t)) / max(len(t), 1) > 0.15:
+        return NONE_Q
+    t = re.sub(r"[#&?%\\\"“”‘’<>{}|^`\[\]]", " ", t)
+    t = re.sub(r"\s+", " ", t).strip(" .,:;")
+    return t[:150] or NONE_Q
 
 
 def _lock_spans(t):
@@ -33,6 +48,8 @@ def main(llm_text: str = "", manuscript: str = "", cand_json: str = "") -> dict:
     except Exception:
         cands = {}
     locks = _lock_spans(manuscript)
+    msn = _n(manuscript)
+    already = {n for n, c in cands.items() if len(_n(c.get("title"))) >= 12 and _n(c.get("title")) in msn}
     out, slots, dropped = [], [], 0
     for s in sugs:
         if len(out) >= MAX_SUG:
@@ -58,7 +75,7 @@ def main(llm_text: str = "", manuscript: str = "", cand_json: str = "") -> dict:
                 n = int(x)
             except Exception:
                 continue
-            if n not in cands or n in refs:
+            if n not in cands or n in refs or n in already:
                 continue
             if n not in slots:
                 if len(slots) >= MAX_REFS:
@@ -72,10 +89,16 @@ def main(llm_text: str = "", manuscript: str = "", cand_json: str = "") -> dict:
     qs = []
     for n in slots:
         c = cands[n]
-        qs.append(re.sub(r"\s+", " ", c["title"]).strip()[:150])
+        qs.append(_clean_q(c.get("title", "")))
     qs += [NONE_Q] * (MAX_REFS - len(qs))
+    skipped = sum(1 for q in qs[:len(slots)] if q == NONE_Q)
+    note = ""
+    if dropped:
+        note += "；%d 則因錨點句無法定位而略過" % dropped
+    if skipped:
+        note += "；%d 筆為中文或不宜查詢，未送 Crossref" % skipped
     res = {"sug_json": json.dumps({"suggestions": out, "slot_cands": [cands[n] for n in slots]}, ensure_ascii=False),
-           "status": "通過驗證 %d 則建議、%d 筆候選文獻%s" % (len(out), len(slots), ("；%d 則因錨點句無法定位而略過" % dropped) if dropped else "")}
+           "status": "通過驗證 %d 則建議、%d 筆候選文獻%s" % (len(out), len(slots), note)}
     for i in range(MAX_REFS):
         res["q%d" % (i + 1)] = qs[i]
     return res
